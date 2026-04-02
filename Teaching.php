@@ -74,3 +74,13 @@ function sum(...$number){
      }
 echo sum(1,2,3,4);
 echo "<br>";
+
+//Json file handling( processing)
+$arr1 = [1, 2, 3, 4, 5];
+$json = json_encode($arr1);
+echo $json;
+echo "<br>";
+//JSON DECODE 
+$decoded = json_decode($json, true);
+print_r($decoded);
+echo "<br>";
