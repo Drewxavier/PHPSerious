@@ -84,3 +84,24 @@ echo "<br>";
 $decoded = json_decode($json, true);
 print_r($decoded);
 echo "<br>";
+// Hashing the password
+$hash = password_hash('mypassword', PASSWORD_DEFAULT);
+
+// Verifying the password
+if (password_verify('mypassword', $hash)) {
+    echo 'Password is valid!';
+} else {
+    echo 'Invalid password.';
+}
+echo "<br>";
+//Class defination
+class Hello{
+    public $greeting = "Hello There";
+
+    public function displaygreeting(){
+        echo $this->greeting;
+    }
+
+}
+$hello = new Hello();//instance of a class
+$hello ->displaygreeting();
