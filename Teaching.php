@@ -105,3 +105,19 @@ class Hello{
 }
 $hello = new Hello();//instance of a class
 $hello ->displaygreeting();
+echo "<br>";
+//Involving a constructor in a class
+class test{
+    public $value;
+
+    public function __construct($val){
+        $this->value = $val;
+    }
+    public function __destruct(){
+        echo "Object is destroyed";
+    }
+}
+$men = new test("Haaalllloo");
+echo $men->value;
+
+echo "<br>";
