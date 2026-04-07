@@ -140,6 +140,8 @@ print $foo -> staticfunction() . "<br>";
 
 print bar::$my_static . "<br>";
 $bar = new bar();
-print $bar -> staticfunction(). "<br>";
+print $bar -> staticfunction(). "<br>"; //inherits from class foo
 //print $bar -> my_static;
 echo "<br>";
+
+
