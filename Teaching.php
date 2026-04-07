@@ -108,16 +108,38 @@ $hello ->displaygreeting();
 echo "<br>";
 //Involving a constructor in a class
 class test{
-    public $value;
+    public $value; //property
 
-    public function __construct($val){
+    public function __construct($val){  //method
         $this->value = $val;
-    }
-    public function __destruct(){
-        echo "Object is destroyed";
     }
 }
 $men = new test("Haaalllloo");
 echo $men->value;
 
+echo "<br>";
+
+//Static methods and properties
+class foo{
+    public static $my_static = 'foo'; //declaring statix value
+
+    public function staticfunction(){
+        return self::$my_static;
+    }
+}
+class bar extends foo{
+    public function fooStatic(){
+        return parent::$my_static;
+    }
+}
+
+print foo::$my_static . "<br>";
+$foo = new foo();
+print $foo -> staticfunction() . "<br>";
+//print $foo -> my_static . "<br>"; this will bring in an error
+
+print bar::$my_static . "<br>";
+$bar = new bar();
+print $bar -> staticfunction(). "<br>";
+//print $bar -> my_static;
 echo "<br>";
