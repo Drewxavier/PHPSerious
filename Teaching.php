@@ -144,4 +144,5 @@ print $bar -> staticfunction(). "<br>"; //inherits from class foo
 //print $bar -> my_static;
 echo "<br>";
 
+//Type declarations
 
