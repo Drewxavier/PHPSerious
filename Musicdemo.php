@@ -25,8 +25,8 @@ class Song {
 class MusicApp {
     private $songs = [];
     private $playlists = [];
-    private $storageFile = "music_data.json";
-
+    private $storageFile = "music_data.json"; //stores songs so that even if you exit, the songs are still there
+    //automatically creates a place to store the songs automatically when you add a song
     public function __construct() {
         $this->loadData();
     }

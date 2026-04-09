@@ -1,0 +1,16 @@
+{
+    "songs": [
+        {
+            "title": "Meemee",
+            "artist": "drew",
+            "album": "0ne",
+            "genre": "Electric",
+            "duration": "2.33"
+        }
+    ],
+    "playlists": {
+        "Electric": [
+            "Meemee"
+        ]
+    }
+}
