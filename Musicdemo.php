@@ -38,7 +38,7 @@ class MusicApp {
                 foreach ($data['songs'] as $s) {
                     $this->songs[] = new Song($s['title'], $s['artist'], $s['album'], $s['genre'], $s['duration']);
                 }
-                $this->playlists = $data['playlists'];
+                $this->playlists = $data['playlists']; //used to resotre the app's playlist array
             }
         }
     }
@@ -56,7 +56,7 @@ class MusicApp {
             }, $this->songs),
             'playlists' => $this->playlists
         ];
-        file_put_contents($this->storageFile, json_encode($data, JSON_PRETTY_PRINT));
+        file_put_contents($this->storageFile, json_encode($data, JSON_PRETTY_PRINT));//takes data array(which contains all songs and playlists), converts it into a JSON string
     }
 
     public function addSong($title, $artist, $album, $genre, $duration) {
