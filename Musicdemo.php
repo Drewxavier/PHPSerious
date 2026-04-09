@@ -2,6 +2,18 @@
 // music_app.php
 // Run: php music_app.php
 
+    function parseInput($line) {
+    $data = [];
+    // Match key=value pairs, values may be quoted
+    preg_match_all('/(\w+)=(".*?"|\S+)/', $line, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+        $key = $match[1];
+        $value = trim($match[2], '"');
+        $data[$key] = $value;
+    }
+    return $data;
+}
+
 class Song {
     public $title;//declaring items
     public $artist;
@@ -9,12 +21,12 @@ class Song {
     public $genre;
     public $duration;
 
-    public function __construct($title, $artist, $album, $genre, $duration) {
-        $this->title = $title;
-        $this->artist = $artist;
-        $this->album = $album;
-        $this->genre = $genre;
-        $this->duration = $duration;
+    public function __construct($data = []) {
+        $this->title = $data['title']?? "No title";
+        $this->artist = $data['artist']?? "No Artist";
+        $this->album = $data['album']?? "Single";
+        $this->genre = $data['genre']??"Unknown";
+        $this->duration = $data['duration']?? "Assumed 3:00";
     }
 
     public function __toString() {
@@ -31,12 +43,13 @@ class MusicApp {
         $this->loadData();
     }
 
+
     private function loadData() {
         if (file_exists($this->storageFile)) {
             $data = json_decode(file_get_contents($this->storageFile), true);
             if ($data) {
                 foreach ($data['songs'] as $s) {
-                    $this->songs[] = new Song($s['title'], $s['artist'], $s['album'], $s['genre'], $s['duration']);
+                    $this->songs[] = new Song($s);
                 }
                 $this->playlists = $data['playlists']; //used to resotre the app's playlist array
             }
@@ -59,10 +72,11 @@ class MusicApp {
         file_put_contents($this->storageFile, json_encode($data, JSON_PRETTY_PRINT));//takes data array(which contains all songs and playlists), converts it into a JSON string
     }
 
-    public function addSong($title, $artist, $album, $genre, $duration) {
-        $this->songs[] = new Song($title, $artist, $album, $genre, $duration);
+    public function addSong($data) {
+        $song = new Song($data);
+        $this->songs[] = $song;
         $this->saveData();
-        echo "Song added: $title\n";
+        echo "Song added: {$song->title}\n";
     }
 
     public function listSongs() {
@@ -91,13 +105,14 @@ class MusicApp {
         }
     }
 
-    public function deleteSong($title) {
+    public function deleteSong($title, $artist) {
         foreach ($this->songs as $i => $song) {
-            if (strcasecmp($song->title, $title) === 0) {
+            if (strcasecmp($song->title, $title) === 0 &&
+                strcasecmp($song->artist, $artist)=== 0) {
                 unset($this->songs[$i]);
                 $this->songs = array_values($this->songs);
                 $this->saveData();
-                echo "Deleted song: $title\n";
+                echo "Deleted song: $title by $artist\n";
                 return;
             }
         }
@@ -147,7 +162,7 @@ class MusicApp {
 
     public function help() {
         echo "Commands:\n";
-        echo " add-song <title> <artist> <album> <genre> <duration>\n";
+        echo " add-song title=\"Hello\" artist=\"Adele\" album=\"25\" genre=\"Pop\" duration=\"4:00\"\n";
         echo " list-songs\n";
         echo " search-song <keyword>\n";
         echo " delete-song <title>\n";
@@ -162,7 +177,7 @@ class MusicApp {
 
 // CLI loop
 $app = new MusicApp();
-echo "Welcome to CLI Music App!\nType 'help' for commands.\n";
+echo "Welcome to DrewCLI Music App!\nType 'help' for commands.\n";
 
 while (true) {
     echo "> ";
@@ -172,18 +187,27 @@ while (true) {
 
     switch ($command) {
         case 'add-song':
-            if (count($parts) < 5) { echo "Usage: add-song <title> <artist> <album> <genre> <duration>\n"; break; }
-            $app->addSong($parts[0], $parts[1], $parts[2], $parts[3], $parts[4]);
+            $data = parseInput($input); // parse full line into key=value array
+            $app->addSong($data);
             break;
+
         case 'list-songs': $app->listSongs(); break;
         case 'search-song': $app->searchSong(implode(" ", $parts)); break;
-        case 'delete-song': $app->deleteSong(implode(" ", $parts)); break;
+        case 'delete-song': 
+            if (count($parts) < 2){
+                echo "Usage: Delete-song <title> <artist>/n";
+                break;
+            }
+            $title = $parts[0];
+            $artist= implode(" ", array_slice($parts, 1));
+            $app->deleteSong($title,$artist);
+            break;
         case 'create-playlist': $app->createPlaylist(implode(" ", $parts)); break;
         case 'add-to-playlist':
             if (count($parts) < 2) { echo "Usage: add-to-playlist <playlist> <title>\n"; break; }
             $app->addToPlaylist($parts[0], implode(" ", array_slice($parts,1)));
             break;
-        case 'list playlists': $app->listPlaylists(); break;
+        case 'list-playlists': $app->listPlaylists(); break;
         case 'play': $app->playSong(implode(" ", $parts));
         case 'help': $app->help(); break;
         case 'exit': exit("See you next time!\n");

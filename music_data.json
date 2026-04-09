@@ -4,8 +4,57 @@
             "title": "Meemee",
             "artist": "drew",
             "album": "0ne",
-            "genre": "Electric",
+            "genre": "Unknown",
             "duration": "2.33"
+        },
+        {
+            "title": "No title",
+            "artist": "No Artist",
+            "album": "Single",
+            "genre": "Unknown",
+            "duration": "Assumed 3:00"
+        },
+        {
+            "title": "Rolling in the Deep",
+            "artist": "Adele",
+            "album": "21",
+            "genre": "Pop",
+            "duration": "Assumed 3:00"
+        },
+        {
+            "title": "Rolling in the Deep",
+            "artist": "Adele",
+            "album": "21",
+            "genre": "Unknown",
+            "duration": "Assumed 3:00"
+        },
+        {
+            "title": "No title",
+            "artist": "Brew",
+            "album": "21",
+            "genre": "Unknown",
+            "duration": "Assumed 3:00"
+        },
+        {
+            "title": "No title",
+            "artist": "Brew",
+            "album": "21",
+            "genre": "Unknown",
+            "duration": "Assumed 3:00"
+        },
+        {
+            "title": "No title",
+            "artist": "Brew",
+            "album": "21",
+            "genre": "Unknown",
+            "duration": "Assumed 3:00"
+        },
+        {
+            "title": "No title",
+            "artist": "No Artist",
+            "album": "Single",
+            "genre": "Unknown",
+            "duration": "Assumed 3:00"
         }
     ],
     "playlists": {
