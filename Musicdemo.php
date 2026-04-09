@@ -165,7 +165,7 @@ class MusicApp {
         echo " add-song title=\"Hello\" artist=\"Adele\" album=\"25\" genre=\"Pop\" duration=\"4:00\"\n";
         echo " list-songs\n";
         echo " search-song <keyword>\n";
-        echo " delete-song <title>\n";
+        echo " delete-song <title> <artist>\n";
         echo " create-playlist <name>\n";
         echo " add-to-playlist <playlist> <title>\n";
         echo " list-playlists\n";
@@ -194,13 +194,12 @@ while (true) {
         case 'list-songs': $app->listSongs(); break;
         case 'search-song': $app->searchSong(implode(" ", $parts)); break;
         case 'delete-song': 
-            if (count($parts) < 2){
-                echo "Usage: Delete-song <title> <artist>/n";
-                break;
+            $data = parseInput($input);
+            if (!isset($data['title']) || !isset($data['artist'])) {
+                echo "Usage: delete-song title=\"<title>\" artist=\"<artist>\"\n";
+                break;  
             }
-            $title = $parts[0];
-            $artist= implode(" ", array_slice($parts, 1));
-            $app->deleteSong($title,$artist);
+            $app->deleteSong($data['data'], $data['artist']);
             break;
         case 'create-playlist': $app->createPlaylist(implode(" ", $parts)); break;
         case 'add-to-playlist':
