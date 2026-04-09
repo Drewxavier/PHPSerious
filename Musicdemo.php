@@ -183,4 +183,10 @@ while (true) {
             if (count($parts) < 2) { echo "Usage: add-to-playlist <playlist> <title>\n"; break; }
             $app->addToPlaylist($parts[0], implode(" ", array_slice($parts,1)));
             break;
-        case
+        case 'list playlists': $app->listPlaylists(); break;
+        case 'play': $app->playSong(implode(" ", $parts));
+        case 'help': $app->help(); break;
+        case 'exit': exit("See you next time!\n");
+        default: echo "Unknown command. Type 'help'\n";
+    }
+}
