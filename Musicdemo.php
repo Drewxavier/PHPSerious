@@ -101,7 +101,7 @@ class MusicApp {
                 return;
             }
         }
-        echo "Song not found.\n";
+        echo "Song not found.\n";// to make it more advanced, it could go to a dustbin that will delete the song after thirty days to allow for quicker retrival
     }
 
     public function createPlaylist($name) {
