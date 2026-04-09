@@ -106,14 +106,28 @@ class MusicApp {
     }
 
     public function deleteSong($title, $artist) {
+        if ($title === null && $artist === null) {
+            echo "Error: You must provide at least a tittle or an artist.\n";
+            return;
+        }
         foreach ($this->songs as $i => $song) {
-            if (strcasecmp($song->title, $title) === 0 &&
-                strcasecmp($song->artist, $artist)=== 0) {
-                unset($this->songs[$i]);
-                $this->songs = array_values($this->songs);
-                $this->saveData();
-                echo "Deleted song: $title by $artist\n";
-                return;
+            $match = false;
+
+            if ($title !== null && $artist !== null) {
+            $match = (strcasecmp((string)$song->title, (string)$title) === 0 &&
+                      strcasecmp((string)$song->artist, (string)$artist) === 0);
+        } elseif ($title !== null) {
+            $match = (strcasecmp((string)$song->title, (string)$title) === 0);
+        } elseif ($artist !== null) {
+            $match = (strcasecmp((string)$song->artist, (string)$artist) === 0);
+        }
+
+        if ($match) {
+            unset($this->songs[$i]);
+            $this->songs = array_values($this->songs);
+            $this->saveData();
+            echo "Deleted song: {$song->title} by {$song->artist}\n";
+            return;
             }
         }
         echo "Song not found.\n";// to make it more advanced, it could go to a dustbin that will delete the song after thirty days to allow for quicker retrival
@@ -165,7 +179,8 @@ class MusicApp {
         echo " add-song title=\"Hello\" artist=\"Adele\" album=\"25\" genre=\"Pop\" duration=\"4:00\"\n";
         echo " list-songs\n";
         echo " search-song <keyword>\n";
-        echo " delete-song <title> <artist>\n";
+        echo " delete-song title=\"<title>\" artist=\"<artist>\"\n";
+        echo "   (You can also delete by just title OR just artist if one is missing)\n";
         echo " create-playlist <name>\n";
         echo " add-to-playlist <playlist> <title>\n";
         echo " list-playlists\n";
@@ -193,14 +208,20 @@ while (true) {
 
         case 'list-songs': $app->listSongs(); break;
         case 'search-song': $app->searchSong(implode(" ", $parts)); break;
-        case 'delete-song': 
+        case 'delete-song':
             $data = parseInput($input);
-            if (!isset($data['title']) || !isset($data['artist'])) {
+            $title = $data['title'] ?? null;
+            $artist = $data['artist'] ?? null;
+
+            if ($title === null && $artist === null) {
                 echo "Usage: delete-song title=\"<title>\" artist=\"<artist>\"\n";
-                break;  
+                echo "   (You can also delete by just title OR just artist)\n";
+                break;
             }
-            $app->deleteSong($data['data'], $data['artist']);
+
+            $app->deleteSong($title, $artist);
             break;
+
         case 'create-playlist': $app->createPlaylist(implode(" ", $parts)); break;
         case 'add-to-playlist':
             if (count($parts) < 2) { echo "Usage: add-to-playlist <playlist> <title>\n"; break; }
