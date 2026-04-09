@@ -173,6 +173,20 @@ class MusicApp {
         }
         echo "Song not found.\n";
     }
+public function deleteAllSongs() {
+    echo "Are you sure you want to delete ALL songs? (Y/N): ";
+    $confirmation = trim(fgets(STDIN));
+
+    if (strcasecmp($confirmation, "Y") === 0) {
+        $count = count($this->songs);
+        $this->songs = []; // clear the array
+        $this->saveData(); // update the JSON file
+        echo "Deleted all $count songs from catalogue.\n";
+    } else {
+        echo "Cancelled. No songs were deleted.\n";
+    }
+}
+
 
     public function help() {
         echo "Commands:\n";
@@ -181,6 +195,7 @@ class MusicApp {
         echo " search-song <keyword>\n";
         echo " delete-song title=\"<title>\" artist=\"<artist>\"\n";
         echo "   (You can also delete by just title OR just artist if one is missing)\n";
+        echo " delete-all-songs   (remove every song from the catalogue,  asks for Y/N confirmation)\n";
         echo " create-playlist <name>\n";
         echo " add-to-playlist <playlist> <title>\n";
         echo " list-playlists\n";
@@ -229,6 +244,9 @@ while (true) {
             break;
         case 'list-playlists': $app->listPlaylists(); break;
         case 'play': $app->playSong(implode(" ", $parts));
+        case 'delete-all-songs':
+           $app->deleteAllSongs();
+           break;
         case 'help': $app->help(); break;
         case 'exit': exit("See you next time!\n");
         default: echo "Unknown command. Type 'help'\n";
