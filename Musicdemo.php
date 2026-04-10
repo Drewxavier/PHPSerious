@@ -47,6 +47,8 @@ class MusicApp {
     private $isPaused = false;
     private $repeat = false;
     private $shuffle = false;
+    private $playlistIndex = -1;
+    private $elapsedBeforePause = 0;
 
 
     
@@ -286,13 +288,25 @@ public function deletePlaylist($name) {
 }
 
 public function pause() {
-    if ($this->currentSong) {
+    if ($this->currentSong && !$this->isPaused) {
         $this->isPaused = true;
+        $this->elapsedBeforePause += time() - $this->startTime;
+        $this->startTime = null; // stop the clock
         echo "Paused: {$this->currentSong->title}\n";
     } else {
-        echo "No song is playing.\n";
+        echo "No song is playing or already paused.\n";
     }
 }
+public function resume() {
+    if ($this->currentSong && $this->isPaused) {
+        $this->isPaused = false;
+        $this->startTime = time(); // restart clock
+        echo "Resumed: {$this->currentSong->title}\n";
+    } else {
+        echo "No song is paused.\n";
+    }
+}
+
 
 public function stop() {
     if ($this->currentSong) {
@@ -362,32 +376,43 @@ private function nowPlayingSession() {
         return;
     }
 
-    echo "Commands: progress | pause | stop | next | previous | shuffle | repeat | exit\n";
+    echo "Commands: progress | pause | resume | stop | next | previous | shuffle | repeat | exit\n";
+
+    // Enable non-blocking input
+    stream_set_blocking(STDIN, false);
 
     while (true) {
-        echo "player> ";
-        $input = trim(fgets(STDIN));
-        $command = strtolower($input);
+        // Update progress every second
+        $this->simulateProgress();
 
-        switch ($command) {
-            case 'progress': $this->simulateProgress(); break;
-            case 'pause': $this->pause(); break;
-            case 'stop': $this->stop(); return;
-            case 'next': $this->nextSong(); break;
-            case 'previous': $this->previousSong(); break;
-            case 'shuffle': $this->toggleShuffle(); break;
-            case 'repeat': $this->toggleRepeat(); break;
-            case 'exit': echo "Leaving Now Playing.\n"; return;
-            default: echo "Unknown command.\n";
+        // Check for user input without blocking
+        $input = fgets(STDIN);
+        if ($input !== false) {
+            $command = strtolower(trim($input));
+
+            switch ($command) {
+                case 'progress': $this->simulateProgress(true); break;
+                case 'pause': $this->pause(); break;
+                case 'resume': $this->resume(); break;
+                case 'stop': $this->stop(); stream_set_blocking(STDIN, true); return;
+                case 'next': $this->nextSong(); break;
+                case 'previous': $this->previousSong(); break;
+                case 'shuffle': $this->toggleShuffle(); break;
+                case 'repeat': $this->toggleRepeat(); break;
+                case 'exit': echo "Leaving Now Playing.\n"; stream_set_blocking(STDIN, true); return;
+                default: if ($command !== '') echo "Unknown command.\n";
+            }
         }
+
+        sleep(1); // refresh every second
     }
 }
 
 
 private $startTime = null;
 
-private function simulateProgressLoop() {
-    if (!$this->currentSong || !$this->startTime) return;
+private function simulateProgress($force = false) {
+    if (!$this->currentSong) return;
 
     // Extract duration safely
     if (!preg_match('/(\d+):(\d+)/', $this->currentSong->duration, $matches)) {
@@ -397,19 +422,26 @@ private function simulateProgressLoop() {
     $sec = (int)$matches[2];
     $totalSeconds = ($min * 60) + $sec;
 
-    while (true) {
-        $elapsed = time() - $this->startTime;
-        if ($elapsed > $totalSeconds) {
-            echo "Song finished: {$this->currentSong->title}\n";
-            $this->currentSong = null;
-            break;
-        }
-        $m = floor($elapsed / 60);
-        $s = str_pad($elapsed % 60, 2, "0", STR_PAD_LEFT);
-        echo "▶ $m:$s / {$this->currentSong->duration}\r";
-        sleep(1); // update every second
+    // Calculate elapsed
+    $elapsed = $this->elapsedBeforePause;
+    if (!$this->isPaused && $this->startTime) {
+        $elapsed += time() - $this->startTime;
     }
+
+    if ($elapsed > $totalSeconds) {
+        echo "\nSong finished: {$this->currentSong->title}\n";
+        $this->currentSong = null;
+        $this->elapsedBeforePause = 0;
+        return;
+    }
+
+    $m = floor($elapsed / 60);
+    $s = str_pad($elapsed % 60, 2, "0", STR_PAD_LEFT);
+
+    echo "\r▶ $m:$s / {$this->currentSong->duration}";
+    if ($force) echo "\n";
 }
+
 
 
 
@@ -459,7 +491,6 @@ public function deleteAllSongs() {
         echo "\n";
         echo " delete-song title=\"<title>\" artist=\"<artist>\"\n";
         echo "   (You can also delete by just title OR just artist if one is missing)\n";
-        echo " delete-all-songs   (remove every song from the catalogue,  asks for Y/N confirmation)\n";
         echo "\n";
         echo " create-playlist <name>\n";
         echo " add-to-playlist <playlist> <title>\n";
@@ -470,6 +501,8 @@ public function deleteAllSongs() {
         echo "\n";
         echo " help\n";
         echo " exit\n";
+        echo "\n";
+        echo " delete-all-songs   (remove every song from the catalogue,  asks for Y/N confirmation)\n";
     }
 }
 
