@@ -162,6 +162,92 @@ class MusicApp {
         echo "Song not found.\n";
     }
 
+public function playlistSession() {
+    if (empty($this->playlists)) {
+        echo "No playlists available.\n";
+        return;
+    }
+
+    echo "Playlists:\n";
+    foreach (array_keys($this->playlists) as $i => $name) {
+        echo ($i+1) . ". $name\n";
+    }
+
+    echo "Type the playlist name to open it, or 'exit' to leave playlist mode.\n";
+
+    while (true) {
+        echo "playlist> ";
+        $input = trim(fgets(STDIN));
+
+        if (strcasecmp($input, "exit") === 0) {
+            echo "Leaving playlist mode.\n";
+            break;
+        }
+
+        if (!isset($this->playlists[$input])) {
+            echo "Playlist not found. Try again.\n";
+            continue;
+        }
+
+        $this->playlistMenu($input);
+    }
+}
+
+private function playlistMenu($name) {
+    echo "Opened playlist: $name\n";
+    $songs = $this->playlists[$name];
+
+    if (empty($songs)) {
+        echo "This playlist is empty.\n";
+        return;
+    }
+
+    echo "Songs in '$name':\n";
+    foreach ($songs as $i => $title) {
+        echo "  - $title\n";
+    }
+
+    echo "Commands inside playlist:\n";
+    echo " play <song title>   (play a song by its name)\n";
+    echo " show                (re-list songs in this playlist)\n";
+    echo " back            (return to playlist list)\n";
+
+    while (true) {
+        echo "[$name]> ";
+        $input = trim(fgets(STDIN));
+        $parts = explode(" ", $input);
+        $command = strtolower(array_shift($parts));
+
+        switch ($command) {
+            case 'play':
+                if (empty($parts)) {
+                    echo "Usage: play <song title>\n";
+                    break;
+                }
+                $title = implode(" ", $parts);
+                // Check if the song exists in this playlist
+                if (in_array($title, $songs)) {
+                    $this->playSong($title);
+                } else {
+                    echo "Song '$title' not found in playlist '$name'.\n";
+                }
+                break;
+
+            case 'show':
+                echo "Songs in '$name':\n";
+                foreach ($songs as $t) {
+                    echo "  - $t\n";
+                }
+                break;
+
+            case 'back':
+                return;
+
+            default:
+                echo "Unknown command inside playlist. Use 'play <number>' or 'back'.\n";
+        }
+    }
+}
     public function listPlaylists() {
         foreach ($this->playlists as $name => $songs) {
             echo "Playlist: $name\n";
@@ -277,7 +363,10 @@ while (true) {
             if (count($parts) < 2) { echo "Usage: add-to-playlist <playlist> <title>\n"; break; }
             $app->addToPlaylist($parts[0], implode(" ", array_slice($parts,1)));
             break;
-        case 'list-playlists': $app->listPlaylists(); break;
+        case 'list-playlists': 
+            $app->playlistSession(); 
+            break;
+
         case 'play': $app->playSong(implode(" ", $parts));
         case 'delete-all-songs':
            $app->deleteAllSongs();

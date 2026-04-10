@@ -41,7 +41,18 @@
             "album": "Single",
             "genre": "Unknown",
             "duration": "Assumed 3:00"
+        },
+        {
+            "title": "MTC",
+            "artist": "No Artist",
+            "album": "Single",
+            "genre": "Unknown",
+            "duration": "Assumed 3:00"
         }
     ],
-    "playlists": []
+    "playlists": {
+        "Electric": [
+            "MTC"
+        ]
+    }
 }
