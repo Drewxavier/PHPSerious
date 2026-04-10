@@ -1,13 +1,6 @@
 {
     "songs": [
         {
-            "title": "Hello",
-            "artist": "Adele",
-            "album": "25",
-            "genre": "Pop",
-            "duration": "4:55"
-        },
-        {
             "title": "Shape of You",
             "artist": "Ed Sheeran",
             "album": "Divide",
@@ -30,10 +23,14 @@
         }
     ],
     "playlists": {
-        "Electric": [
-            "MTC"
+        "Electric": [],
+        "PopHits": [
+            "Hello",
+            "Shape of You"
         ],
-        "PopHits": [],
-        "Classics": []
+        "Classics": [
+            "Bohemian Rhapsody",
+            "Lose Yourself"
+        ]
     }
 }

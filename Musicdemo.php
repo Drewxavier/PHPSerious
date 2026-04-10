@@ -125,15 +125,16 @@ class MusicApp {
         }
     }
 
-    public function deleteSong($title, $artist) {
-        if ($title === null && $artist === null) {
-            echo "Error: You must provide at least a tittle or an artist.\n";
-            return;
-        }
-        foreach ($this->songs as $i => $song) {
-            $match = false;
+public function deleteSong($title, $artist) {
+    if ($title === null && $artist === null) {
+        echo "Error: You must provide at least a title or an artist.\n";
+        return;
+    }
 
-            if ($title !== null && $artist !== null) {
+    foreach ($this->songs as $i => $song) {
+        $match = false;
+
+        if ($title !== null && $artist !== null) {
             $match = (strcasecmp((string)$song->title, (string)$title) === 0 &&
                       strcasecmp((string)$song->artist, (string)$artist) === 0);
         } elseif ($title !== null) {
@@ -143,15 +144,32 @@ class MusicApp {
         }
 
         if ($match) {
-            unset($this->songs[$i]);
-            $this->songs = array_values($this->songs);
-            $this->saveData();
-            echo "Deleted song: {$song->title} by {$song->artist}\n";
-            return;
+            // ✅ Ask for confirmation before deleting
+            echo "Are you sure you want to delete '{$song->title}' by '{$song->artist}'? (Y/N): ";
+            $confirmation = trim(fgets(STDIN));
+
+            if (strcasecmp($confirmation, "Y") === 0) {
+                unset($this->songs[$i]);
+                $this->songs = array_values($this->songs);
+
+                // ✅ Remove this song from all playlists
+                foreach ($this->playlists as $pname => &$plist) {
+                    $plist = array_values(array_filter($plist, function($t) use ($song) {
+                        return strcasecmp($t, $song->title) !== 0;
+                    }));
+                }
+
+                $this->saveData();
+                echo "Deleted song: {$song->title} by {$song->artist}\n";
+            } else {
+                echo "Cancelled. Song '{$song->title}' was not deleted.\n";
             }
+            return;
         }
-        echo "Song not found.\n";// to make it more advanced, it could go to a dustbin that will delete the song after thirty days to allow for quicker retrival
     }
+
+    echo "Song not found.\n";
+}
 
     public function createPlaylist($name) {
         if (!isset($this->playlists[$name])) {
@@ -497,6 +515,7 @@ public function deleteAllSongs() {
     if (strcasecmp($confirmation, "Y") === 0) {
         $count = count($this->songs);
         $this->songs = []; // clear the array
+        $this->playlists = [];//clear playlist too
         $this->saveData(); // update the JSON file
         echo "Deleted all $count songs from catalogue.\n";
     } else {
