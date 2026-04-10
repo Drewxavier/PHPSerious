@@ -18,13 +18,6 @@
             "title": "Rolling in the Deep",
             "artist": "Adele",
             "album": "21",
-            "genre": "Pop",
-            "duration": "Assumed 3:00"
-        },
-        {
-            "title": "Rolling in the Deep",
-            "artist": "Adele",
-            "album": "21",
             "genre": "Unknown",
             "duration": "Assumed 3:00"
         },
@@ -50,9 +43,5 @@
             "duration": "Assumed 3:00"
         }
     ],
-    "playlists": {
-        "Electric": [
-            "Meemee"
-        ]
-    }
+    "playlists": []
 }

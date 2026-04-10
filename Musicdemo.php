@@ -163,7 +163,23 @@ class MusicApp {
             }
         }
     }
+public function deletePlaylist($name) {
+    if (!isset($this->playlists[$name])) {
+        echo "Playlist not found.\n";
+        return;
+    }
 
+    echo "Are you sure you want to delete the playlist '$name'? (Y/N): ";
+    $confirmation = trim(fgets(STDIN));
+
+    if (strcasecmp($confirmation, "Y") === 0) {
+        unset($this->playlists[$name]);
+        $this->saveData();
+        echo "Deleted playlist: $name\n";
+    } else {
+        echo "Cancelled. Playlist '$name' was not deleted.\n";
+    }
+}
     public function playSong($title) {
         foreach ($this->songs as $song) {
             if (strcasecmp($song->title, $title) === 0) {
@@ -199,6 +215,7 @@ public function deleteAllSongs() {
         echo " create-playlist <name>\n";
         echo " add-to-playlist <playlist> <title>\n";
         echo " list-playlists\n";
+        echo " delete-playlist <name>   (remove a playlist, asks for Y/N confirmation)\n";
         echo " play <title>\n";
         echo " help\n";
         echo " exit\n";
@@ -247,6 +264,13 @@ while (true) {
         case 'delete-all-songs':
            $app->deleteAllSongs();
            break;
+        case 'delete-playlist':
+            if (empty($parts)) {
+                echo "Usage: delete-playlist <name>\n";
+                break;
+            }
+            $app->deletePlaylist(implode(" ", $parts));
+            break;
         case 'help': $app->help(); break;
         case 'exit': exit("See you next time!\n");
         default: echo "Unknown command. Type 'help'\n";
