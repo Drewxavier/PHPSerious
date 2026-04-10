@@ -89,13 +89,20 @@ class MusicApp {
         }
     }
 
-    public function searchSong($keyword) {
-        $results = array_filter($this->songs, function($s) use ($keyword) {
-            return stripos($s->title, $keyword) !== false ||
-                   stripos($s->artist, $keyword) !== false ||
-                   stripos($s->album, $keyword) !== false ||
-                   stripos($s->genre, $keyword) !== false;
-        });
+  public function searchSong($criteria) {
+    // $criteria is an associative array from parseInput
+    $results = array_filter($this->songs, function($s) use ($criteria) {
+        $match = true;
+        foreach ($criteria as $key => $value) {
+            if (property_exists($s, $key)) {
+                if (stripos($s->$key, $value) === false) {
+                    $match = false;
+                    break;
+                }
+            }
+        }
+        return $match;
+    });
         if (empty($results)) {
             echo "No matches found.\n";
         } else {
@@ -208,7 +215,9 @@ public function deleteAllSongs() {
         echo "Commands:\n";
         echo " add-song title=\"Hello\" artist=\"Adele\" album=\"25\" genre=\"Pop\" duration=\"4:00\"\n";
         echo " list-songs\n";
-        echo " search-song <keyword>\n";
+        echo " search-song title=\"<title>\" artist=\"<artist>\" album=\"<album>\" genre=\"<genre>\"\n";
+        echo "   (You can search by one or multiple fields)\n";
+
         echo " delete-song title=\"<title>\" artist=\"<artist>\"\n";
         echo "   (You can also delete by just title OR just artist if one is missing)\n";
         echo " delete-all-songs   (remove every song from the catalogue,  asks for Y/N confirmation)\n";
@@ -239,7 +248,16 @@ while (true) {
             break;
 
         case 'list-songs': $app->listSongs(); break;
-        case 'search-song': $app->searchSong(implode(" ", $parts)); break;
+        case 'search-song':
+            $data = parseInput($input);
+            if (empty($data)) {
+                echo "Usage: search-song title=\"<title>\" artist=\"<artist>\" album=\"<album>\" genre=\"<genre>\"\n";
+                echo "   (You can provide one or more fields)\n";
+                break;
+            }
+            $app->searchSong($data);
+            break;
+
         case 'delete-song':
             $data = parseInput($input);
             $title = $data['title'] ?? null;

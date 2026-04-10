@@ -1,0 +1,15 @@
+ISSUES.
+1. I'm not sure someone needs and album or set to unknown if not inputed. And about this duration, you could change it to have a default of 3 minutes if not added, rather that bringing an error, writing the title should allow space or give an example on how to write it. and the option to also modify the name incase an error is made.(Done)
+Delete should be modified just songs are of the same name.
+2. The search should bring like. Found! songs in electric, from S3RL if from singer, and if album exist from album, same to genre
+3.There are artist who collab also need the opinion so add that
+4.List Playlist is not working. Also when it works, someone should be able not just to see the playlist but also access it and pick a song to play.
+5.When the song is playing, make sure that there is not list of all those things being listed there, just the song ... is playing
+Confirm the data structure it is using, and learn even more about the entire code and how it is retrieving everything, just know it's inner workings.
+If duration or any of them is added wrongly or with the wrong type, it should specify please add the correct duration or something, same to the rest.
+Things not present
+
+Playback Controls  
+Even in CLI, you’ll want commands for play, pause, stop, next, previous, and maybe shuffle/repeat.
+
+
