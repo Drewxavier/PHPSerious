@@ -48,6 +48,7 @@ class MusicApp {
     private $repeat = false;
     private $shuffle = false;
 
+
     
     public function __construct() {
         $this->loadData();
@@ -361,8 +362,7 @@ private function nowPlayingSession() {
         return;
     }
 
-    echo "🎵 Now Playing: {$this->currentSong}\n";
-    echo "Commands: pause | stop | next | previous | shuffle | repeat | exit\n";
+    echo "Commands: progress | pause | stop | next | previous | shuffle | repeat | exit\n";
 
     while (true) {
         echo "player> ";
@@ -370,17 +370,49 @@ private function nowPlayingSession() {
         $command = strtolower($input);
 
         switch ($command) {
+            case 'progress': $this->simulateProgress(); break;
             case 'pause': $this->pause(); break;
-            case 'stop': $this->stop(); return; // exit session after stop
+            case 'stop': $this->stop(); return;
             case 'next': $this->nextSong(); break;
             case 'previous': $this->previousSong(); break;
             case 'shuffle': $this->toggleShuffle(); break;
             case 'repeat': $this->toggleRepeat(); break;
             case 'exit': echo "Leaving Now Playing.\n"; return;
-            default: echo "Unknown command. Try pause, stop, next, previous, shuffle, repeat, exit.\n";
+            default: echo "Unknown command.\n";
         }
     }
 }
+
+
+private $startTime = null;
+
+private function simulateProgressLoop() {
+    if (!$this->currentSong || !$this->startTime) return;
+
+    // Extract duration safely
+    if (!preg_match('/(\d+):(\d+)/', $this->currentSong->duration, $matches)) {
+        $matches = [0, 3, 0]; // fallback 3:00
+    }
+    $min = (int)$matches[1];
+    $sec = (int)$matches[2];
+    $totalSeconds = ($min * 60) + $sec;
+
+    while (true) {
+        $elapsed = time() - $this->startTime;
+        if ($elapsed > $totalSeconds) {
+            echo "Song finished: {$this->currentSong->title}\n";
+            $this->currentSong = null;
+            break;
+        }
+        $m = floor($elapsed / 60);
+        $s = str_pad($elapsed % 60, 2, "0", STR_PAD_LEFT);
+        echo "▶ $m:$s / {$this->currentSong->duration}\r";
+        sleep(1); // update every second
+    }
+}
+
+
+
 
 public function playSong($title) {
     foreach ($this->songs as $i => $song) {
@@ -388,13 +420,15 @@ public function playSong($title) {
             $this->currentSong = $song;
             $this->currentIndex = $i;
             $this->isPaused = false;
-            $this->currentPlaylist = null; // unless playing from playlist
+            $this->startTime = time();
+            echo "🎵 Now Playing: $song\n";
             $this->nowPlayingSession();
             return;
         }
     }
     echo "Song not found.\n";
 }
+
 
 
 public function deleteAllSongs() {
