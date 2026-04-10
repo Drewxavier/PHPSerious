@@ -164,16 +164,22 @@ class MusicApp {
     }
 
     public function addToPlaylist($playlist, $title) {
+        if (!isset($this->playlists[$playlist])) {
+            echo "Playlist '$playlist' does not exist.\n";
+            return;
+        }
+
         foreach ($this->songs as $song) {
             if (strcasecmp($song->title, $title) === 0) {
+                // ✅ Add the song title to the playlist
                 $this->playlists[$playlist][] = $song->title;
                 $this->saveData();
-                echo "Added $title to $playlist\n";
+                echo "Added '{$song->title}' to playlist '$playlist'\n";
                 return;
-            }
         }
-        echo "Song not found.\n";
     }
+    echo "Song '$title' not found in catalogue.\n";
+}
 
 public function playlistSession() {
     if (empty($this->playlists)) {
@@ -222,8 +228,9 @@ private function playlistMenu($name) {
 
     echo "Commands inside playlist:\n";
     echo " play <song title>   (play a song by its name)\n";
+    echo " remove <song title> (remove a song from this playlist)\n";
     echo " show                (re-list songs in this playlist)\n";
-    echo " back            (return to playlist list)\n";
+    echo " back                (return to playlist list)\n";
 
     while (true) {
         echo "[$name]> ";
@@ -240,9 +247,27 @@ private function playlistMenu($name) {
                 $title = implode(" ", $parts);
                 // Check if the song exists in this playlist
                 if (in_array($title, $songs)) {
+                    // ✅ Set playlist context before playing
+                    $this->currentPlaylist = $name;
+                    $this->playlistIndex = array_search($title, $songs);
                     $this->playSong($title);
                 } else {
                     echo "Song '$title' not found in playlist '$name'.\n";
+                }
+                break;
+            case 'remove':
+                if (empty($parts)) {
+                    echo "Usage: remove <song title>\n";
+                    break;
+                }
+                $title = implode(" ", $parts);
+                if (($key = array_search($title, $songs)) !== false) {
+                    unset($songs[$key]);
+                    $this->playlists[$name] = array_values($songs); // reindex
+                    $this->saveData();
+                    echo "Removed '$title' from playlist '$name'.\n";
+                } else {
+                  echo "Song '$title' not found in playlist '$name'.\n";
                 }
                 break;
 
@@ -257,18 +282,20 @@ private function playlistMenu($name) {
                 return;
 
             default:
-                echo "Unknown command inside playlist. Use 'play <number>' or 'back'.\n";
+                echo "Unknown command inside playlist. Use 'play <song title>' or 'back'.\n";
         }
     }
 }
-    public function listPlaylists() {
-        foreach ($this->playlists as $name => $songs) {
-            echo "Playlist: $name\n";
-            foreach ($songs as $s) {
-                echo "  - $s\n";
-            }
+
+public function listPlaylists() {
+    foreach ($this->playlists as $name => $songs) {
+        echo "Playlist: $name\n";
+        foreach ($songs as $s) {
+            echo "  - $s\n";
         }
     }
+}
+
 public function deletePlaylist($name) {
     if (!isset($this->playlists[$name])) {
         echo "Playlist not found.\n";

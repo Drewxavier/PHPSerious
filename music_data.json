@@ -1,8 +1,39 @@
 {
-    "songs": [],
+    "songs": [
+        {
+            "title": "Hello",
+            "artist": "Adele",
+            "album": "25",
+            "genre": "Pop",
+            "duration": "4:55"
+        },
+        {
+            "title": "Shape of You",
+            "artist": "Ed Sheeran",
+            "album": "Divide",
+            "genre": "Pop",
+            "duration": "3:53"
+        },
+        {
+            "title": "Lose Yourself",
+            "artist": "Eminem",
+            "album": "8 Mile",
+            "genre": "Rap",
+            "duration": "5:20"
+        },
+        {
+            "title": "Bohemian Rhapsody",
+            "artist": "Queen",
+            "album": "A Night at the Opera",
+            "genre": "Rock",
+            "duration": "5:55"
+        }
+    ],
     "playlists": {
         "Electric": [
             "MTC"
-        ]
+        ],
+        "PopHits": [],
+        "Classics": []
     }
 }
