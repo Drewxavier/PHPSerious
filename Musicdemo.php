@@ -25,7 +25,7 @@ class Song {
         $this->title = $data['title']?? "No title";
         $this->artist = $data['artist']?? "No Artist";
         $this->album = $data['album']?? "Single";
-        $this->genre = $data['genre']??"Unknown";
+        $this->genre = $data['genre']??"Unknown genre";
         $this->duration = $data['duration']?? "Assumed 3:00";
     }
 
@@ -368,6 +368,7 @@ while (true) {
             break;
 
         case 'play': $app->playSong(implode(" ", $parts));
+             break;
         case 'delete-all-songs':
            $app->deleteAllSongs();
            break;
