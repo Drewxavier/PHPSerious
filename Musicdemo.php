@@ -39,6 +39,16 @@ class MusicApp {
     private $playlists = [];
     private $storageFile = "music_data.json"; //stores songs so that even if you exit, the songs are still there
     //automatically creates a place to store the songs automatically when you add a song
+    
+    //Fields to track playback
+    private $currentSong = null;
+    private $currentPlaylist = null;
+    private $currentIndex = -1;
+    private $isPaused = false;
+    private $repeat = false;
+    private $shuffle = false;
+
+    
     public function __construct() {
         $this->loadData();
     }
@@ -273,15 +283,120 @@ public function deletePlaylist($name) {
         echo "Cancelled. Playlist '$name' was not deleted.\n";
     }
 }
-    public function playSong($title) {
-        foreach ($this->songs as $song) {
-            if (strcasecmp($song->title, $title) === 0) {
-                echo "Now playing: $song\n";
+
+public function pause() {
+    if ($this->currentSong) {
+        $this->isPaused = true;
+        echo "Paused: {$this->currentSong->title}\n";
+    } else {
+        echo "No song is playing.\n";
+    }
+}
+
+public function stop() {
+    if ($this->currentSong) {
+        echo "Stopped: {$this->currentSong->title}\n";
+        $this->currentSong = null;
+        $this->currentIndex = -1;
+    } else {
+        echo "No song is playing.\n";
+    }
+}
+
+public function nextSong() {
+    if ($this->currentPlaylist) {
+        $songs = $this->playlists[$this->currentPlaylist];
+        if ($this->shuffle) {
+            $title = $songs[array_rand($songs)];
+        } else {
+            $this->currentIndex++;
+            if ($this->currentIndex >= count($songs)) {
+                if ($this->repeat) {
+                    $this->currentIndex = 0;
+                } else {
+                    echo "End of playlist.\n";
+                    return;
+                }
+            }
+            $title = $songs[$this->currentIndex];
+        }
+        $this->playSong($title);
+    } else {
+        echo "No playlist is active.\n";
+    }
+}
+
+public function previousSong() {
+    if ($this->currentPlaylist) {
+        $songs = $this->playlists[$this->currentPlaylist];
+        $this->currentIndex--;
+        if ($this->currentIndex < 0) {
+            if ($this->repeat) {
+                $this->currentIndex = count($songs) - 1;
+            } else {
+                echo "Start of playlist.\n";
                 return;
             }
         }
-        echo "Song not found.\n";
+        $title = $songs[$this->currentIndex];
+        $this->playSong($title);
+    } else {
+        echo "No playlist is active.\n";
     }
+}
+
+public function toggleShuffle() {
+    $this->shuffle = !$this->shuffle;
+    echo "Shuffle " . ($this->shuffle ? "ON" : "OFF") . "\n";
+}
+
+public function toggleRepeat() {
+    $this->repeat = !$this->repeat;
+    echo "Repeat " . ($this->repeat ? "ON" : "OFF") . "\n";
+}
+
+private function nowPlayingSession() {
+    if (!$this->currentSong) {
+        echo "No song is currently playing.\n";
+        return;
+    }
+
+    echo "🎵 Now Playing: {$this->currentSong}\n";
+    echo "Commands: pause | stop | next | previous | shuffle | repeat | exit\n";
+
+    while (true) {
+        echo "player> ";
+        $input = trim(fgets(STDIN));
+        $command = strtolower($input);
+
+        switch ($command) {
+            case 'pause': $this->pause(); break;
+            case 'stop': $this->stop(); return; // exit session after stop
+            case 'next': $this->nextSong(); break;
+            case 'previous': $this->previousSong(); break;
+            case 'shuffle': $this->toggleShuffle(); break;
+            case 'repeat': $this->toggleRepeat(); break;
+            case 'exit': echo "Leaving Now Playing.\n"; return;
+            default: echo "Unknown command. Try pause, stop, next, previous, shuffle, repeat, exit.\n";
+        }
+    }
+}
+
+public function playSong($title) {
+    foreach ($this->songs as $i => $song) {
+        if (strcasecmp($song->title, $title) === 0) {
+            $this->currentSong = $song;
+            $this->currentIndex = $i;
+            $this->isPaused = false;
+            $this->currentPlaylist = null; // unless playing from playlist
+            $this->nowPlayingSession();
+            return;
+        }
+    }
+    echo "Song not found.\n";
+}
+
+
 public function deleteAllSongs() {
     echo "Are you sure you want to delete ALL songs? (Y/N): ";
     $confirmation = trim(fgets(STDIN));
@@ -299,19 +414,26 @@ public function deleteAllSongs() {
 
     public function help() {
         echo "Commands:\n";
+        echo "\n";
         echo " add-song title=\"Hello\" artist=\"Adele\" album=\"25\" genre=\"Pop\" duration=\"4:00\"\n";
+        echo "\n";
         echo " list-songs\n";
+        echo "\n";
         echo " search-song title=\"<title>\" artist=\"<artist>\" album=\"<album>\" genre=\"<genre>\"\n";
         echo "   (You can search by one or multiple fields)\n";
 
+        echo "\n";
         echo " delete-song title=\"<title>\" artist=\"<artist>\"\n";
         echo "   (You can also delete by just title OR just artist if one is missing)\n";
         echo " delete-all-songs   (remove every song from the catalogue,  asks for Y/N confirmation)\n";
+        echo "\n";
         echo " create-playlist <name>\n";
         echo " add-to-playlist <playlist> <title>\n";
         echo " list-playlists\n";
         echo " delete-playlist <name>   (remove a playlist, asks for Y/N confirmation)\n";
+        echo "\n";
         echo " play <title>\n";
+        echo "\n";
         echo " help\n";
         echo " exit\n";
     }
