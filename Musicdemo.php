@@ -503,6 +503,9 @@ private function nowPlayingSession() {
     while (true) {
         // Update progress every second
         $this->simulateProgress();
+        $parts = explode(" ", $input);
+        $command = strtolower(array_shift($parts));
+
 
         // Check for user input without blocking
         $input = fgets(STDIN);
@@ -581,10 +584,9 @@ private function simulateProgress($force = false) {
 
 
 
-public function playSong($title) {
-    if ($title === null) {
-        echo "Error: No valid song title provided.\n";
-        return;
+public function playSong($title = null) {
+    if ($title === null && !empty($this->queue)) {
+        $title = array_shift($this->queue);
     }
     foreach ($this->songs as $i => $song) {
         if (strcasecmp($song->title, $title) === 0) {
