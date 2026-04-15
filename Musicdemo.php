@@ -1,6 +1,7 @@
 <?php
 // music_app.php
 // Run: php music_app.php
+//Created using Indexed and assoiciative arrays
 
     function parseInput($line) {
     $data = [];
