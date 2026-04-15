@@ -50,9 +50,12 @@ class MusicApp {
     private $playlistIndex = -1;
     private $elapsedBeforePause = 0;
     private $queue = [];
+    
 
-
-
+    public function getSongs() {
+        return $this->songs;
+    }
+    
     
     public function __construct() {
         $this->loadData();
@@ -716,17 +719,18 @@ while (true) {
 
         case 'play':
             if (empty($parts)) {
-                // No title given → start from first song in catalogue
-                if (!empty($app->songs)) {
-                    $firstTitle = $app->songs[0]->title;
+                $songs = $app->getSongs();
+                if (!empty($songs)) {
+                    $firstTitle = $songs[0]->title;
                     $app->playSong($firstTitle);
-               } else {
+                } else {
                     echo "No songs in catalogue.\n";
                 }
             } else {
                 $app->playSong(implode(" ", $parts));
             }
             break;
+            
             
         case 'delete-all-songs':
            $app->deleteAllSongs();
