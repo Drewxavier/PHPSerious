@@ -503,14 +503,15 @@ private function nowPlayingSession() {
     while (true) {
         // Update progress every second
         $this->simulateProgress();
-        $parts = explode(" ", $input);
-        $command = strtolower(array_shift($parts));
+  
 
 
         // Check for user input without blocking
         $input = fgets(STDIN);
         if ($input !== false) {
             $command = strtolower(trim($input));
+            $parts = explode(" ", $input);
+            $command = strtolower(array_shift($parts));
 
             switch ($command) {
                 case 'progress': $this->simulateProgress(true); break;
