@@ -298,26 +298,18 @@ private function playlistMenu($name) {
                     $this->playlistIndex = 0;
                     $title = $songs[$this->playlistIndex];
                     $this->playSong($title);
-                    break;
-                }
-                $title = implode(" ", $parts);
-                if (in_array($title, $songs)) {
-                    $this->currentPlaylist = $name;
-                    $this->playlistIndex = array_search($title, $songs);
-                    $this->playSong($title);
                 } else {
-                    echo "Song '$title' not found in playlist '$name'.\n";
+                    $title = implode(" ", $parts);
+                    if (in_array($title, $songs)) {
+                        $this->currentPlaylist = $name;
+                        $this->playlistIndex = array_search($title, $songs);
+                        $this->playSong($title);
+                    } else {
+                        echo "Song '$title' not found in playlist '$name'.\n";
+                    }
                 }
                 break;
-                $title = implode(" ", $parts);
-                if (in_array($title, $songs)) {
-                    $this->currentPlaylist = $name;
-                    $this->playlistIndex = array_search($title, $songs);
-                    $this->playSong($title);
-                } else {
-                    echo "Song '$title' not found in playlist '$name'.\n";
-                }
-                break;
+            
             case 'queue':
                 if (empty($parts)) {
                     echo "Usage: queue <song title>\n";
@@ -478,6 +470,51 @@ public function nextSong() {
         $this->playSong($title);
     }
 }
+public function previousSong() {
+    if ($this->currentPlaylist) {
+        // Playlist mode
+        $songs = $this->playlists[$this->currentPlaylist];
+        if (empty($songs)) {
+            echo "This playlist is empty.\n";
+            return;
+        }
+
+        if ($this->shuffle) {
+            $title = $songs[array_rand($songs)];
+        } else {
+            $this->playlistIndex--;
+            if ($this->playlistIndex < 0) {
+                if ($this->repeat) {
+                    $this->playlistIndex = count($songs) - 1;
+                } else {
+                    echo "Start of playlist.\n";
+                    return;
+                }
+            }
+            $title = $songs[$this->playlistIndex];
+        }
+        $this->playSong($title);
+
+    } else {
+        // Global catalogue mode
+        if (empty($this->songs)) {
+            echo "No songs in catalogue.\n";
+            return;
+        }
+
+        $this->currentIndex--;
+        if ($this->currentIndex < 0) {
+            if ($this->repeat) {
+                $this->currentIndex = count($this->songs) - 1;
+            } else {
+                echo "Start of catalogue.\n";
+                return;
+            }
+        }
+        $title = $this->songs[$this->currentIndex]->title;
+        $this->playSong($title);
+    }
+}
 
 public function toggleShuffle() {
     $this->shuffle = !$this->shuffle;
@@ -509,7 +546,7 @@ private function nowPlayingSession() {
         // Check for user input without blocking
         $input = fgets(STDIN);
         if ($input !== false) {
-            $command = strtolower(trim($input));
+            $input = trim($input);
             $parts = explode(" ", $input);
             $command = strtolower(array_shift($parts));
 
