@@ -129,16 +129,24 @@ class MusicApp {
             }
         }
     }
-public function queueSong($title) {
-    foreach ($this->songs as $song) {
-        if (strcasecmp($song->title, $title) === 0) {
-            $this->queue[] = $song->title;
-            echo "Queued '{$song->title}' to play next.\n";
-            return;
+    public function queueSong($title) {
+        if ($this->currentPlaylist) {
+            // Playlist mode queue
+            $this->queue[] = $title;
+            echo "Queued '$title' in playlist '{$this->currentPlaylist}'.\n";
+        } else {
+            // Global catalogue queue
+            foreach ($this->songs as $song) {
+                if (strcasecmp($song->title, $title) === 0) {
+                    $this->queue[] = $song->title;
+                    echo "Queued '{$song->title}' to play next.\n";
+                    return;
+                }
+            }
+            echo "Song '$title' not found in catalogue.\n";
         }
     }
-    echo "Song '$title' not found in catalogue.\n";
-}
+    
 public function showQueue() {
     if (empty($this->queue)) {
         echo "Queue is empty.\n";
@@ -292,8 +300,10 @@ private function playlistMenu($name) {
 
         switch ($command) {
             case 'play':
-                if (empty($parts)) {
-                    // No title given → start from first song
+                if (!empty($this->queue)) {
+                    $title = array_shift($this->queue);
+                    $this->playSong($title);
+                } elseif (empty($parts)) {
                     $this->currentPlaylist = $name;
                     $this->playlistIndex = 0;
                     $title = $songs[$this->playlistIndex];
@@ -309,6 +319,7 @@ private function playlistMenu($name) {
                     }
                 }
                 break;
+            
             
             case 'queue':
                 if (empty($parts)) {
