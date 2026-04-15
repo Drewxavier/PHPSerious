@@ -386,9 +386,14 @@ public function nextSong() {
     }
 }
 
-public function previousSong() {
+ppublic function previousSong() {
     if ($this->currentPlaylist) {
         $songs = $this->playlists[$this->currentPlaylist];
+        if (empty($songs)) {
+            echo "This playlist is empty.\n";
+            return;
+        }
+
         $this->currentIndex--;
         if ($this->currentIndex < 0) {
             if ($this->repeat) {
@@ -398,6 +403,12 @@ public function previousSong() {
                 return;
             }
         }
+
+        if (!isset($songs[$this->currentIndex])) {
+            echo "Error: No valid song title provided.\n";
+            return;
+        }
+
         $title = $songs[$this->currentIndex];
         $this->playSong($title);
     } else {
@@ -460,8 +471,8 @@ private function simulateProgress($force = false) {
     if (!$this->currentSong) return;
 
     // Extract duration safely
-    $duration = $this->currentSong->duration ?? "3:00"
-    if (preg_match('/(\d+):(\d+)$/', $duration, $matches)) {
+    $duration = $this->currentSong->duration ?? "3:00";
+    if (preg_match('/^(\d+):(\d+)$/', $duration, $matches)) {
         $min = (int)$matches[1];
         $sec = (int)$matches[2]; // fallback 3:00
     } else {
