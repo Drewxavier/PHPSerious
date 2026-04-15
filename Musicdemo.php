@@ -49,6 +49,8 @@ class MusicApp {
     private $shuffle = false;
     private $playlistIndex = -1;
     private $elapsedBeforePause = 0;
+    private $queue = [];
+
 
 
     
@@ -124,6 +126,16 @@ class MusicApp {
             }
         }
     }
+public function queueSong($title) {
+    foreach ($this->songs as $song) {
+        if (strcasecmp($song->title, $title) === 0) {
+            $this->queue[] = $song->title;
+            echo "Queued '{$song->title}' to play next.\n";
+            return;
+        }
+    }
+    echo "Song '$title' not found in catalogue.\n";
+}
 
 public function deleteSong($title, $artist) {
     if ($title === null && $artist === null) {
@@ -259,13 +271,15 @@ private function playlistMenu($name) {
         switch ($command) {
             case 'play':
                 if (empty($parts)) {
-                    echo "Usage: play <song title>\n";
+                    // No title given → start from first song
+                    $this->currentPlaylist = $name;
+                    $this->playlistIndex = 0;
+                    $title = $songs[$this->playlistIndex];
+                    $this->playSong($title);
                     break;
                 }
                 $title = implode(" ", $parts);
-                // Check if the song exists in this playlist
                 if (in_array($title, $songs)) {
-                    // ✅ Set playlist context before playing
                     $this->currentPlaylist = $name;
                     $this->playlistIndex = array_search($title, $songs);
                     $this->playSong($title);
@@ -273,6 +287,7 @@ private function playlistMenu($name) {
                     echo "Song '$title' not found in playlist '$name'.\n";
                 }
                 break;
+            
             case 'remove':
                 if (empty($parts)) {
                     echo "Usage: remove <song title>\n";
@@ -364,7 +379,13 @@ public function stop() {
 }
 
 public function nextSong() {
+    if (!empty($this->queue)) {
+        $title = array_shift($this->queue); // take from queue
+        $this->playSong($title);
+        return;
+    }
     if ($this->currentPlaylist) {
+        // Playlist mode
         $songs = $this->playlists[$this->currentPlaylist];
         if (empty($songs)) {
             echo "This playlist is empty.\n";
@@ -386,36 +407,76 @@ public function nextSong() {
             $title = $songs[$this->playlistIndex];
         }
         $this->playSong($title);
+
     } else {
-        echo "No playlist is active.\n";
+        // Global catalogue mode
+        if (empty($this->songs)) {
+            echo "No songs in catalogue.\n";
+            return;
+        }
+
+        $this->currentIndex++;
+        if ($this->currentIndex >= count($this->songs)) {
+            if ($this->repeat) {
+                $this->currentIndex = 0;
+            } else {
+                echo "End of catalogue.\n";
+                return;
+            }
+        }
+        $title = $this->songs[$this->currentIndex]->title;
+        $this->playSong($title);
     }
 }
 
 
-public function previousSong() {
+
+public function nextSong() {
     if ($this->currentPlaylist) {
+        // Playlist mode
         $songs = $this->playlists[$this->currentPlaylist];
         if (empty($songs)) {
             echo "This playlist is empty.\n";
             return;
         }
 
-        $this->playlistIndex--;
-        if ($this->playlistIndex < 0) {
+        if ($this->shuffle) {
+            $title = $songs[array_rand($songs)];
+        } else {
+            $this->playlistIndex++;
+            if ($this->playlistIndex >= count($songs)) {
+                if ($this->repeat) {
+                    $this->playlistIndex = 0;
+                } else {
+                    echo "End of playlist.\n";
+                    return;
+                }
+            }
+            $title = $songs[$this->playlistIndex];
+        }
+        $this->playSong($title);
+
+    } else {
+        // Global catalogue mode
+        if (empty($this->songs)) {
+            echo "No songs in catalogue.\n";
+            return;
+        }
+
+        $this->currentIndex++;
+        if ($this->currentIndex >= count($this->songs)) {
             if ($this->repeat) {
-                $this->playlistIndex = count($songs) - 1;
+                $this->currentIndex = 0;
             } else {
-                echo "Start of playlist.\n";
+                echo "End of catalogue.\n";
                 return;
             }
         }
-
-        $title = $songs[$this->playlistIndex];
+        $title = $this->songs[$this->currentIndex]->title;
         $this->playSong($title);
-    } else {
-        echo "No playlist is active.\n";
     }
 }
+
 
 
 public function toggleShuffle() {
@@ -491,15 +552,21 @@ private function simulateProgress($force = false) {
 
     if ($elapsed > $totalSeconds) {
         echo "\nSong finished: {$this->currentSong->title}\n";
-        $this->currentSong = null;
         $this->elapsedBeforePause = 0;
+        $this->currentSong = null;
+    
+        // Auto‑advance if in a playlist
+        if ($this->currentPlaylist) {
+            $this->nextSong();
+        }
         return;
     }
+    
 
     $m = floor($elapsed / 60);
     $s = str_pad($elapsed % 60, 2, "0", STR_PAD_LEFT);
 
-    echo "\r▶ $m:$s / {$this->currentSong->duration}";
+    echo "\r♪ $m:$s / {$this->currentSong->duration}";
     if ($force) echo "\n";
 }
 
@@ -525,7 +592,7 @@ public function playSong($title) {
                 $songs = $this->playlists[$this->currentPlaylist];
                 $this->playlistIndex = array_search($title, $songs);
             }
-            echo "🎵 Now Playing: $song\n";
+            echo "♪ Now Playing: $song\n";
             $this->nowPlayingSession();
             return;
         }
@@ -557,6 +624,8 @@ public function deleteAllSongs() {
         echo " add-song title=\"Hello\" artist=\"Adele\" album=\"25\" genre=\"Pop\" duration=\"4:00\"\n";
         echo "\n";
         echo " list-songs\n";
+        echo "\n";
+        echo " queue <title> (add a song to play next)\n";
         echo "\n";
         echo " search-song title=\"<title>\" artist=\"<artist>\" album=\"<album>\" genre=\"<genre>\"\n";
         echo "   (You can search by one or multiple fields)\n";
@@ -619,7 +688,14 @@ while (true) {
 
             $app->deleteSong($title, $artist);
             break;
-
+        case 'queue':
+              if (empty($parts)) {
+                    echo "Usage: queue <title>\n";
+                    break;
+              }
+              $app->queueSong(implode(" ", $parts));
+              break;
+            
         case 'create-playlist': $app->createPlaylist(implode(" ", $parts)); break;
         case 'add-to-playlist':
             if (count($parts) < 2) { echo "Usage: add-to-playlist <playlist> <title>\n"; break; }

@@ -27,13 +27,21 @@
             "album": "Single",
             "genre": "Unknown genre",
             "duration": "Assumed 3:00"
+        },
+        {
+            "title": "Hello",
+            "artist": "No Artist",
+            "album": "Single",
+            "genre": "Unknown genre",
+            "duration": "Assumed 3:00"
         }
     ],
     "playlists": {
         "Electric": [],
         "PopHits": [
             "Shape of You",
-            "Amazing grace"
+            "Amazing grace",
+            "Hello"
         ],
         "Classics": [
             "Bohemian Rhapsody",
