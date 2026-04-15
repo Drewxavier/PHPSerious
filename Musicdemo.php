@@ -136,6 +136,21 @@ public function queueSong($title) {
     }
     echo "Song '$title' not found in catalogue.\n";
 }
+public function showQueue() {
+    if (empty($this->queue)) {
+        echo "Queue is empty.\n";
+        return;
+    }
+    echo "Queued songs:\n";
+    foreach ($this->queue as $i => $title) {
+        echo ($i+1) . ". $title\n";
+    }
+}
+
+public function clearQueue() {
+    $this->queue = [];
+    echo "Queue cleared.\n";
+}
 
 public function deleteSong($title, $artist) {
     if ($title === null && $artist === null) {
@@ -495,7 +510,7 @@ private function nowPlayingSession() {
         return;
     }
 
-    echo "Commands: progress | pause | resume | stop | next | previous | shuffle | repeat | exit\n";
+    echo "Commands: progress | pause | resume | stop | next | queue | previous | shuffle | repeat | exit\n";
 
     // Enable non-blocking input
     stream_set_blocking(STDIN, false);
@@ -626,6 +641,8 @@ public function deleteAllSongs() {
         echo " list-songs\n";
         echo "\n";
         echo " queue <title> (add a song to play next)\n";
+        echo " show-queue           (list queued songs)\n";
+        echo " clear-queue          (empty the queue)\n";
         echo "\n";
         echo " search-song title=\"<title>\" artist=\"<artist>\" album=\"<album>\" genre=\"<genre>\"\n";
         echo "   (You can search by one or multiple fields)\n";
@@ -695,6 +712,9 @@ while (true) {
               }
               $app->queueSong(implode(" ", $parts));
               break;
+        case 'show-queue': $app->showQueue(); break;
+        case 'clear-queue': $app->clearQueue(); break;
+              
             
         case 'create-playlist': $app->createPlaylist(implode(" ", $parts)); break;
         case 'add-to-playlist':
