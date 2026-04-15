@@ -273,6 +273,10 @@ private function playlistMenu($name) {
 
     echo "Commands inside playlist:\n";
     echo " play <song title>   (play a song by its name)\n";
+    echo " queue <song title>   (add a song to play next)\n";
+    echo " show-queue           (list queued songs)\n";
+    echo " clear-queue          (empty the queue)\n";
+
     echo " remove <song title> (remove a song from this playlist)\n";
     echo " show                (re-list songs in this playlist)\n";
     echo " back                (return to playlist list)\n";
@@ -302,7 +306,35 @@ private function playlistMenu($name) {
                     echo "Song '$title' not found in playlist '$name'.\n";
                 }
                 break;
+                $title = implode(" ", $parts);
+                if (in_array($title, $songs)) {
+                    $this->currentPlaylist = $name;
+                    $this->playlistIndex = array_search($title, $songs);
+                    $this->playSong($title);
+                } else {
+                    echo "Song '$title' not found in playlist '$name'.\n";
+                }
+                break;
+            case 'queue':
+                if (empty($parts)) {
+                    echo "Usage: queue <song title>\n";
+                    break;
+                }
+                $title = implode(" ", $parts);
+                if (in_array($title, $songs)) {
+                    $this->queueSong($title);
+                } else {
+                    echo "Song '$title' not found in playlist '$name'.\n";
+                }
+                break;
             
+            case 'show-queue':
+                $this->showQueue();
+                break;
+            
+            case 'clear-queue':
+                $this->clearQueue();
+                break;
             case 'remove':
                 if (empty($parts)) {
                     echo "Usage: remove <song title>\n";
@@ -444,56 +476,6 @@ public function nextSong() {
     }
 }
 
-
-
-public function nextSong() {
-    if ($this->currentPlaylist) {
-        // Playlist mode
-        $songs = $this->playlists[$this->currentPlaylist];
-        if (empty($songs)) {
-            echo "This playlist is empty.\n";
-            return;
-        }
-
-        if ($this->shuffle) {
-            $title = $songs[array_rand($songs)];
-        } else {
-            $this->playlistIndex++;
-            if ($this->playlistIndex >= count($songs)) {
-                if ($this->repeat) {
-                    $this->playlistIndex = 0;
-                } else {
-                    echo "End of playlist.\n";
-                    return;
-                }
-            }
-            $title = $songs[$this->playlistIndex];
-        }
-        $this->playSong($title);
-
-    } else {
-        // Global catalogue mode
-        if (empty($this->songs)) {
-            echo "No songs in catalogue.\n";
-            return;
-        }
-
-        $this->currentIndex++;
-        if ($this->currentIndex >= count($this->songs)) {
-            if ($this->repeat) {
-                $this->currentIndex = 0;
-            } else {
-                echo "End of catalogue.\n";
-                return;
-            }
-        }
-        $title = $this->songs[$this->currentIndex]->title;
-        $this->playSong($title);
-    }
-}
-
-
-
 public function toggleShuffle() {
     $this->shuffle = !$this->shuffle;
     echo "Shuffle " . ($this->shuffle ? "ON" : "OFF") . "\n";
@@ -533,6 +515,13 @@ private function nowPlayingSession() {
                 case 'previous': $this->previousSong(); break;
                 case 'shuffle': $this->toggleShuffle(); break;
                 case 'repeat': $this->toggleRepeat(); break;
+                case 'queue':
+                    if (!empty($parts)) {
+                        $this->queueSong(implode(" ", $parts));
+                    } else {
+                        echo "Usage: queue <title>\n";
+                    }
+                    break;
                 case 'exit': echo "Leaving Now Playing.\n"; stream_set_blocking(STDIN, true); return;
                 default: if ($command !== '') echo "Unknown command.\n";
             }
@@ -725,8 +714,20 @@ while (true) {
             $app->playlistSession(); 
             break;
 
-        case 'play': $app->playSong(implode(" ", $parts));
-             break;
+        case 'play':
+            if (empty($parts)) {
+                // No title given → start from first song in catalogue
+                if (!empty($app->songs)) {
+                    $firstTitle = $app->songs[0]->title;
+                    $app->playSong($firstTitle);
+               } else {
+                    echo "No songs in catalogue.\n";
+                }
+            } else {
+                $app->playSong(implode(" ", $parts));
+            }
+            break;
+            
         case 'delete-all-songs':
            $app->deleteAllSongs();
            break;
