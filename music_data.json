@@ -20,13 +20,20 @@
             "album": "A Night at the Opera",
             "genre": "Rock",
             "duration": "5:55"
+        },
+        {
+            "title": "Amazing grace",
+            "artist": "No idea",
+            "album": "Single",
+            "genre": "Unknown genre",
+            "duration": "Assumed 3:00"
         }
     ],
     "playlists": {
         "Electric": [],
         "PopHits": [
-            "Hello",
-            "Shape of You"
+            "Shape of You",
+            "Amazing grace"
         ],
         "Classics": [
             "Bohemian Rhapsody",

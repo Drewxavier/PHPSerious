@@ -460,11 +460,14 @@ private function simulateProgress($force = false) {
     if (!$this->currentSong) return;
 
     // Extract duration safely
-    if (!preg_match('/(\d+):(\d+)/', $this->currentSong->duration, $matches)) {
-        $matches = [0, 3, 0]; // fallback 3:00
+    $duration = $this->currentSong->duration ?? "3:00"
+    if (preg_match('/(\d+):(\d+)$/', $duration, $matches)) {
+        $min = (int)$matches[1];
+        $sec = (int)$matches[2]; // fallback 3:00
+    } else {
+        $min = 3;
+        $sec = 0;
     }
-    $min = (int)$matches[1];
-    $sec = (int)$matches[2];
     $totalSeconds = ($min * 60) + $sec;
 
     // Calculate elapsed
@@ -492,12 +495,17 @@ private function simulateProgress($force = false) {
 
 
 public function playSong($title) {
+    if ($title === null) {
+        echo "Error: No valid song title provided.\n";
+        return;
+    }
     foreach ($this->songs as $i => $song) {
         if (strcasecmp($song->title, $title) === 0) {
             $this->currentSong = $song;
             $this->currentIndex = $i;
             $this->isPaused = false;
             $this->startTime = time();
+            $this->elapsedBeforePause = 0;
             echo "🎵 Now Playing: $song\n";
             $this->nowPlayingSession();
             return;
