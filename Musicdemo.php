@@ -366,19 +366,24 @@ public function stop() {
 public function nextSong() {
     if ($this->currentPlaylist) {
         $songs = $this->playlists[$this->currentPlaylist];
+        if (empty($songs)) {
+            echo "This playlist is empty.\n";
+            return;
+        }
+
         if ($this->shuffle) {
             $title = $songs[array_rand($songs)];
         } else {
-            $this->currentIndex++;
-            if ($this->currentIndex >= count($songs)) {
+            $this->playlistIndex++;
+            if ($this->playlistIndex >= count($songs)) {
                 if ($this->repeat) {
-                    $this->currentIndex = 0;
+                    $this->playlistIndex = 0;
                 } else {
                     echo "End of playlist.\n";
                     return;
                 }
             }
-            $title = $songs[$this->currentIndex];
+            $title = $songs[$this->playlistIndex];
         }
         $this->playSong($title);
     } else {
@@ -386,7 +391,8 @@ public function nextSong() {
     }
 }
 
-ppublic function previousSong() {
+
+public function previousSong() {
     if ($this->currentPlaylist) {
         $songs = $this->playlists[$this->currentPlaylist];
         if (empty($songs)) {
@@ -394,27 +400,23 @@ ppublic function previousSong() {
             return;
         }
 
-        $this->currentIndex--;
-        if ($this->currentIndex < 0) {
+        $this->playlistIndex--;
+        if ($this->playlistIndex < 0) {
             if ($this->repeat) {
-                $this->currentIndex = count($songs) - 1;
+                $this->playlistIndex = count($songs) - 1;
             } else {
                 echo "Start of playlist.\n";
                 return;
             }
         }
 
-        if (!isset($songs[$this->currentIndex])) {
-            echo "Error: No valid song title provided.\n";
-            return;
-        }
-
-        $title = $songs[$this->currentIndex];
+        $title = $songs[$this->playlistIndex];
         $this->playSong($title);
     } else {
         echo "No playlist is active.\n";
     }
 }
+
 
 public function toggleShuffle() {
     $this->shuffle = !$this->shuffle;
@@ -517,6 +519,12 @@ public function playSong($title) {
             $this->isPaused = false;
             $this->startTime = time();
             $this->elapsedBeforePause = 0;
+
+            // If we’re inside a playlist, sync playlistIndex
+            if ($this->currentPlaylist) {
+                $songs = $this->playlists[$this->currentPlaylist];
+                $this->playlistIndex = array_search($title, $songs);
+            }
             echo "🎵 Now Playing: $song\n";
             $this->nowPlayingSession();
             return;
