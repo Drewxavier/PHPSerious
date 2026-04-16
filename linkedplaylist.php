@@ -54,6 +54,25 @@ class LinkedList {
         // Update head to the new front
         $this->head = $prev;
     }
+    public function delete(){
+        if ($this->head === NULL){
+            return; // Empty list
+        }
+        // If head itself holds the data
+        if ($this->head->data === $data) {
+            $this->head = $this->head->next;
+            return;
+        }
+        // Search for the node to delete
+        $current = $this->head;
+        while ($current->next !==NULL && $current->next->data !== $data) {
+            $current = $current->next;
+        }
+        //If found, skip over it
+        if ($current->next !==NULL) {
+            $current->next = $current->next->next;
+        }
+    }
 }
 
 // Usage
