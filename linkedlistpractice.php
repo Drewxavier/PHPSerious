@@ -185,3 +185,68 @@ $doublyList->display(); // Output: 10 7 3 5
 $doublyList->delete(7);
 echo "\n";
 $doublyList->display(); // Output: 10 3 5
+
+//Circular linked lists
+<?php
+class Node {
+    public $data;
+    public $next;
+
+    public function __construct($data) {
+        $this->data = $data;
+        $this->next = null;
+    }
+}
+
+class CircularLinkedList {
+    private $head = null;
+
+    // Append a new node at the end
+    public function append($data) {
+        $newNode = new Node($data);
+
+        if ($this->head === null) {
+            // First node points to itself
+            $this->head = $newNode;
+            $newNode->next = $this->head;
+            return;
+        }
+
+        // Traverse to the last node
+        $current = $this->head;
+        while ($current->next !== $this->head) {
+            $current = $current->next;
+        }
+
+        // Link new node
+        $current->next = $newNode;
+        $newNode->next = $this->head;
+    }
+
+    // Traverse the circular list
+    public function traverse($count) {
+        if ($this->head === null) {
+            echo "List is empty\n";
+            return;
+        }
+
+        $current = $this->head;
+        $i = 0;
+        // To avoid infinite loop, limit traversal by count
+        while ($i < $count) {
+            echo $current->data . " ";
+            $current = $current->next;
+            $i++;
+        }
+        echo "\n";
+    }
+}
+
+// Usage
+$list = new CircularLinkedList();
+$list->append(1);
+$list->append(2);
+$list->append(3);
+
+echo "Circular linked list (first 6 elements shown):\n";
+$list->traverse(6); // prints 1 2 3 1 2 3
