@@ -12,6 +12,7 @@ class ListNode {
 
 class LinkedList {
     private $head = NULL;
+    private $next;
 
     // Insert at end
     public function insert($data) {
@@ -55,42 +56,43 @@ class LinkedList {
         // Update head to the new front
         $this->head = $prev;
     }
-    public function delete($data){
-        if ($this->head === NULL){
-            return; // Empty list
+    public function delete() {
+    $current = $this->head;
+
+    while ($current !== null) {
+        while ($current->next !== null) {
+            if ($current->next->data === $current->data) { //missed the === and $data also exchange
+                $current->next = $current->next->next;
+            } else {
+                $current = $current->next;
+            }
         }
-        // If head itself holds the data
-        if ($this->head->data === $data) {
-            $this->head = $this->head->next;
-            return;
-        }
-        // Search for the node to delete
-        $current = $this->head;
-        while ($current->next !==NULL && $current->next->data !== $data) {
-            $current = $current->next;
-        }
-        //If found, skip over it
-        if ($current->next !==NULL) {
-            $current->next = $current->next->next;
-        }
+        $current = $current->next;
     }
 }
+
+}
+
+
 
 // Usage
 $list = new LinkedList();
 $list->insert(1);
+$list->insert(1);
+$list->insert(1);
 $list->insert(2);
+$list->insert(2);
+$list->insert(2);
+$list->insert(3);
+$list->insert(3);
 $list->insert(3);
 
 echo "Linked list: \n";
 $list->traverse();
 echo "\n";
-$list->reverse();
-echo "Reversed Linked List: \n";
-$list->traverse();
-
-echo "\n";
+$list->delete(1);
 $list->delete(2);
+$list->delete(3);
 echo "Deleted Linked List: \n";
 $list->traverse();
 
@@ -187,7 +189,6 @@ echo "\n";
 $doublyList->display(); // Output: 10 3 5
 
 //Circular linked lists
-<?php
 class Node {
     public $data;
     public $next;
@@ -198,55 +199,4 @@ class Node {
     }
 }
 
-class CircularLinkedList {
-    private $head = null;
 
-    // Append a new node at the end
-    public function append($data) {
-        $newNode = new Node($data);
-
-        if ($this->head === null) {
-            // First node points to itself
-            $this->head = $newNode;
-            $newNode->next = $this->head;
-            return;
-        }
-
-        // Traverse to the last node
-        $current = $this->head;
-        while ($current->next !== $this->head) {
-            $current = $current->next;
-        }
-
-        // Link new node
-        $current->next = $newNode;
-        $newNode->next = $this->head;
-    }
-
-    // Traverse the circular list
-    public function traverse($count) {
-        if ($this->head === null) {
-            echo "List is empty\n";
-            return;
-        }
-
-        $current = $this->head;
-        $i = 0;
-        // To avoid infinite loop, limit traversal by count
-        while ($i < $count) {
-            echo $current->data . " ";
-            $current = $current->next;
-            $i++;
-        }
-        echo "\n";
-    }
-}
-
-// Usage
-$list = new CircularLinkedList();
-$list->append(1);
-$list->append(2);
-$list->append(3);
-
-echo "Circular linked list (first 6 elements shown):\n";
-$list->traverse(6); // prints 1 2 3 1 2 3
