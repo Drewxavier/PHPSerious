@@ -1,5 +1,6 @@
 <?php
 //Singly linked list
+// Node for the main linked list
 class ListNode {
     public $data;
     public $next;
@@ -12,7 +13,6 @@ class ListNode {
 
 class LinkedList {
     private $head = NULL;
-    private $next;
 
     // Insert at end
     public function insert($data) {
@@ -57,33 +57,41 @@ class LinkedList {
         $this->head = $prev;
     }
     public function delete() {
-    $current = $this->head;
+        $current = $this->head;
+        $prev = null;
 
-    // Outer loop-pick each node one by one
-    while ($current !== null) {
-        $runner = $current;
+        // SplObjectStorage will act as our hashmap of seen values
+        $seen = new \SplObjectStorage();
 
-        // Inner loop scans ahead for duplicates of current->data
-        while ($runner->next !== null) {
-            if ($runner->next->data === $current->data) {
-                // Duplicate found, should skip it
-                $runner->next = $runner->next->next;
-            } else {
-                $runner = $runner->next;
+        while ($current !== null) {
+            // Instead of creating a new object each time, reuse one per unique value
+            $found = false;
+            foreach ($seen as $obj) {
+                if ($obj->val === $current->data) {
+                    $found = true;
+                    break;
+                }
             }
-        }
 
-        // Move to next distinct value
-        $current = $current->next;
+            if ($found) {
+                // Duplicate → remove node
+                if ($prev !== null) {
+                    $prev->next = $current->next;
+                } else {
+                    $this->head = $current->next;
+                }
+            } else {
+                // First time seeing this value → store it
+                $valObj = (object)['val' => $current->data];
+                $seen->attach($valObj);
+                $prev = $current;
+            }
+
+            $current = $current->next;
+        }
     }
 }
 
-
-}
-
-
-
-// Usage
 $list = new LinkedList();
 $list->insert(1);
 $list->insert(1);
@@ -104,6 +112,8 @@ $list->delete(2);
 $list->delete(3);
 echo "Deleted Linked List: \n";
 $list->traverse();
+
+
 
 //Double linked list
 class Doublenode {
