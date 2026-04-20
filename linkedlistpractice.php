@@ -66,7 +66,7 @@ class LinkedList {
         // Inner loop scans ahead for duplicates of current->data
         while ($runner->next !== null) {
             if ($runner->next->data === $current->data) {
-                // Duplicate found → skip it
+                // Duplicate found, should skip it
                 $runner->next = $runner->next->next;
             } else {
                 $runner = $runner->next;
