@@ -59,17 +59,25 @@ class LinkedList {
     public function delete() {
     $current = $this->head;
 
+    // Outer loop-pick each node one by one
     while ($current !== null) {
-        while ($current->next !== null) {
-            if ($current->next->data === $current->data) { //missed the === and $data also exchange
-                $current->next = $current->next->next;
+        $runner = $current;
+
+        // Inner loop scans ahead for duplicates of current->data
+        while ($runner->next !== null) {
+            if ($runner->next->data === $current->data) {
+                // Duplicate found → skip it
+                $runner->next = $runner->next->next;
             } else {
-                $current = $current->next;
+                $runner = $runner->next;
             }
         }
+
+        // Move to next distinct value
         $current = $current->next;
     }
 }
+
 
 }
 
@@ -86,6 +94,7 @@ $list->insert(2);
 $list->insert(3);
 $list->insert(3);
 $list->insert(3);
+$list->insert(1);
 
 echo "Linked list: \n";
 $list->traverse();
