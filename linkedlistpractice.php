@@ -56,40 +56,31 @@ class LinkedList {
         // Update head to the new front
         $this->head = $prev;
     }
-    public function delete() {
-        $current = $this->head;
-        $prev = null;
+    public function delete($k) {
+    $dummy = new \stdClass();
+    $dummy->next = $this->head;
+    $fast = $dummy;
+    $slow = $dummy;
+    $steps = 0;
 
-        // SplObjectStorage will act as our hashmap of seen values
-        $seen = new \SplObjectStorage();
+    // Single loop: advance fast, then move slow once fast is k ahead
+    while ($fast->next !== null) {
+        $fast = $fast->next;
+        $steps++;
 
-        while ($current !== null) {
-            // Instead of creating a new object each time, reuse one per unique value
-            $found = false;
-            foreach ($seen as $obj) {
-                if ($obj->val === $current->data) {
-                    $found = true;
-                    break;
-                }
-            }
-
-            if ($found) {
-                // Duplicate → remove node
-                if ($prev !== null) {
-                    $prev->next = $current->next;
-                } else {
-                    $this->head = $current->next;
-                }
-            } else {
-                // First time seeing this value → store it
-                $valObj = (object)['val' => $current->data];
-                $seen->attach($valObj);
-                $prev = $current;
-            }
-
-            $current = $current->next;
+        if ($steps > $k) {
+            $slow = $slow->next;
         }
     }
+
+    // Now slow->next is the k-th node from the end
+    if ($steps >= $k && $slow->next !== null) {
+        $slow->next = $slow->next->next;
+    }
+
+    $this->head = $dummy->next;
+}
+
 }
 
 $list = new LinkedList();
