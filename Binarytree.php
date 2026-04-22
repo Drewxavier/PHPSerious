@@ -74,5 +74,39 @@ class Treenode{
         }
         return array_merge($this->postorder($root->left), $this->postorder($root->right), [$root->data]);
     }
+    
+    //breath first search
+    public function levelOrder($root) {
+    if ($root === null) {
+        return [];
+    }
+
+    $result = [];
+    $queue = [$root]; // start with root in the queue
+
+    while (!empty($queue)) {
+        $levelSize = count($queue);
+        $levelVals = [];
+
+        for ($i = 0; $i < $levelSize; $i++) {
+            // dequeue: take first element
+            $node = array_shift($queue);
+            $levelVals[] = $node->data;
+
+            // enqueue children
+            if ($node->left !== null) {
+                $queue[] = $node->left;
+            }
+            if ($node->right !== null) {
+                $queue[] = $node->right;
+            }
+        }
+
+        $result[] = $levelVals;
+    }
+
+    return $result;
+}
+
 
 }
