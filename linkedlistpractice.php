@@ -69,7 +69,7 @@ class LinkedList {
         $steps++;
 
         if ($steps > $k) {
-            $slow = $slow->next;
+            $slow = $slow->next;//when steps are greater than the kth number, that's when it moves
         }
     }
 
@@ -84,24 +84,33 @@ class LinkedList {
 }
 
 $list = new LinkedList();
-$list->insert(1);
-$list->insert(1);
-$list->insert(1);
-$list->insert(2);
-$list->insert(2);
-$list->insert(2);
+$list->insert(5);
+$list->insert(7);
+$list->insert(6);
+$list->insert(9);
+$list->insert(8);
 $list->insert(3);
-$list->insert(3);
-$list->insert(3);
-$list->insert(1);
+$list->insert(2);
+$list->insert(87);
+$list->insert(36);
+$list->insert(11);
 
 echo "Linked list: \n";
 $list->traverse();
 echo "\n";
+
+//Delete the 1st node from end (last element)
 $list->delete(1);
-$list->delete(2);
+echo "After deleting 1st from end: \n";
+$list->traverse();
+//Delete the 3st node from end (last element)
 $list->delete(3);
-echo "Deleted Linked List: \n";
+echo "After deleting 3st from end: \n";
+$list->traverse();
+
+//Delete the 5st node from end (last element)
+$list->delete(5);
+echo "After deleting 5st from end: \n";
 $list->traverse();
 
 
