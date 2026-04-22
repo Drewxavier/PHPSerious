@@ -32,7 +32,7 @@ class Treenode{
             }
         // Pop from stream_socket_accept
         $curr = array_pop($stack);
-        $result[] = $curr->data;
+        $result[] = $curr->data; //visit node
 
         // Move to riht substr_replace
         $curr = $curr->right;
@@ -46,6 +46,33 @@ class Treenode{
             return [];
         }
         return array_merge([$root->data], $this->preorder($root->left), $this->preorder($root->right));
+    }
+    public function iterpreorder($root){
+        if ($root !== null){
+            return [];
+        }
+        $result = [];
+        $stack = [$root];
+        while (!empty($stack)){
+            $node = array_pop($stack);
+            $result[] = $node->data;//visit node
+            // Push right first so left is processed first (stack = LIFO)
+            if ($node->right !== null){
+                $stack[] = $node->right;
+            }
+            if ($node->left !== null){
+                $stack[] = $node->left;
+            }
+                
+        }
+        return $result;
+    }
+
+    public function postorder($root){
+        if ($root === null){
+            return [];//return an empty array if no root
+        }
+        return array_merge($this->postorder($root->left), $this->postorder($root->right), [$root->data]);
     }
 
 }
