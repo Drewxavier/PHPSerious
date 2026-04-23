@@ -139,6 +139,21 @@ class Treenode{
         return $depth;     
     }
 
+    
+    private function isMirror($left, $right){
+            if ($left=== null&& $right === null){
+                return true;
+            }
+            if($left=== null || $right===null){
+                return false;
+            }
+            return ($left->data == $right->data && $this->isMirror($left->left, $right->right) && $this->isMirror($left->right, $right->left));
+        }
+    public function isSymmetric($root){
+        if($root === null) return true;
+        return $this->isMirror($root->left, $root->right);
+
+    }
 
 
 }
@@ -181,7 +196,34 @@ print_r($tree->levelOrder($root));
 echo "maxDepth: ";
 print_r($tree->maxDepth($root));
 
+echo "\n";
+
 // Test maxDepth uisng bfs
 echo "maxDepthBFS: ";
 print_r($tree->bfsMaxDepth($root));
+// Build symmetric tree
+$root1 = new Treenode(1);
+$root1->left = new Treenode(2);
+$root1->right = new Treenode(2);
+$root1->left->left = new Treenode(3);
+$root1->left->right = new Treenode(4);
+$root1->right->left = new Treenode(4);
+$root1->right->right = new Treenode(3);
+
+$tree = new Treenode(null); // just to call methods
+echo "\n";
+
+echo "Symmetric Tree: ";
+var_export($tree->isSymmetric($root1)); // should print true
+
+// Build asymmetric tree
+$root2 = new Treenode(1);
+$root2->left = new Treenode(2);
+$root2->right = new Treenode(2);
+$root2->left->right = new Treenode(3);
+$root2->right->right = new Treenode(3);
+
+echo "\nAsymmetric Tree: ";
+var_export($tree->isSymmetric($root2)); // should print false
+
 
