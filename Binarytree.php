@@ -217,6 +217,51 @@ class Treenode{
         return $max_sum;
 
     }
+    //Search algorithms for BST operations
+    public function searchtarget($root, $target){
+        if($root === null || $root->data === $target){
+            return $root;
+        }
+        if($target < $root->data){
+            return $this->searchtarget($root->left, $target);
+        }
+        return $this->searchtarget($root->right, $target);
+    }
+    public function insert($root, $data){
+        if($root === null){
+            $Treenode = new Treenode($data);
+            return $Treenode;
+        }
+        if ($data < $root->data){
+            $root->left = $this->insert($root->left, $data);
+        }
+        elseif ($data > $root->data){
+            $root->right =$this->insert($root->right, $data);
+        }
+        return $root;
+    }
+    public function delete($root, $key){
+        if($root === null) return null;
+        if($key < $root->data){
+            $root->left = $this->delete($root->left, $key);
+        }
+        elseif($key > $root->data){
+            $root->right = $this->delete($root->right, $key);
+        }
+        else{
+            if($root->left === null) return $root->right;
+            if($root->right === null) return $root->left;
+
+            // 2 children: replace wit inorder successor
+            $successor = $root->right;
+            while($successor->left !== null){ //go to leftmost
+                $successor = $successor->left;
+            }
+            $root->data = $successor->data; //copy successor value
+            $root->right = $this->delete($root->right, $successor->data);
+        }
+        return $root;
+    }
 }
 // Build a sample tree
 $root = new Treenode(5);
