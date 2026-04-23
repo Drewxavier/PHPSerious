@@ -179,9 +179,44 @@ class Treenode{
         }
 
     }
-    public function lowestcommon($root, $p, $q)
+    public function lowestcommon($root, $p, $q){
     #Base case: empty tree or found one of the targets
+    if($root === null || $root === $p || $root === $q){
+        return $root;
+    }
 
+    $left = $this->lowestcommon($root->left, $p, $q);
+    $right =$this->lowestcommon($root->right, $p, $q);
+
+    #p and q found on different sides->current node is LCA
+    if($left !== null && $right !== null){
+        return $root;
+    }
+    # Both found in one subtree, or neither found
+    return $left !== null ? $left : $right; //ternary operator
+
+    }
+    public function maxPathSum($root){
+        $max_sum =  -INF;
+
+        $dfs = function($node) use (&$dfs, &$max_sum) {
+            if($node===null) return 0;
+            
+            # Ignore negative contributions
+            $left_gain = max($dfs($node->left), 0);
+            $right_gain = max($dfs($node->right), 0);
+
+            # Path through current node (both sides)
+            $path_sum = $node->data + $left_gain + $right_gain;
+            $max_sum = max($max_sum, $path_sum);
+
+        # Return the max single-branch gain to parent
+        return $node->data + max($left_gain, $right_gain);
+        };
+        $dfs($root);
+        return $max_sum;
+
+    }
 }
 // Build a sample tree
 $root = new Treenode(5);
@@ -258,3 +293,19 @@ echo "level order: ";
 print_r($tree->levelorder2($root));
 
 echo "\n";
+
+//Lower common ansestor help
+$p = $root->left->left;   // node 2
+$q = $root->left->right;  // node 4
+
+$lca = $tree->lowestcommon($root, $p, $q);
+echo "Lowest Common Ancestor of {$p->data} and {$q->data} is: {$lca->data}\n";
+
+// Find LCA of nodes 2 and 7
+$p = $root->left->left;   // node 2
+$q = $root->right;        // node 7
+
+$lca = $tree->lowestcommon($root, $p, $q);
+echo "Lowest Common Ancestor of {$p->data} and {$q->data} is: {$lca->data}\n";
+// Test maxPathSum
+echo "Max Path Sum: " . $tree->maxPathSum($root) . "\n";
