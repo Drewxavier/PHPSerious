@@ -48,7 +48,7 @@ class Treenode{
         return array_merge([$root->data], $this->preorder($root->left), $this->preorder($root->right));
     }
     public function iterpreorder($root){
-        if ($root !== null){
+        if ($root === null){
             return [];
         }
         $result = [];
@@ -105,8 +105,83 @@ class Treenode{
         $result[] = $levelVals;
     }
 
-    return $result;
-}
+    return $result; 
+    }
+    public function maxDepth($root){
+        if($root===null){
+            return 0;
+        }
+        $left_depth = $this->maxDepth($root->left);
+        $right_depth = $this->maxDepth($root->right);
+
+        return 1 + max($left_depth, $right_depth);
+    }
+    //maxDepth using bfs
+    public function bfsMaxDepth($root){
+        if($root===null){
+            return 0;
+        }
+        $queue=[$root];
+        $depth = 0;
+        while(!empty($queue)){
+            $levelSize = count($queue);
+            $depth++;
+            for($i = 0; $i<$levelSize;$i++){
+                $node = array_shift($queue);
+                if($node->left !== null){
+                    $queue[] = $node->left;
+                }
+                if($node->right !== null){
+                    $queue[] = $node->right;
+                }
+            }
+        }
+        return $depth;     
+    }
 
 
+
 }
+// Build a sample tree
+$root = new Treenode(5);
+$root->left = new Treenode(3);
+$root->right = new Treenode(7);
+$root->left->left = new Treenode(2);
+$root->left->right = new Treenode(4);
+$root->right->left = new Treenode(6);
+$root->right->right = new Treenode(8);
+
+$tree = new Treenode(null); // just to call methods
+
+// Test inorder (recursive)
+echo "Inorder Recursive: ";
+print_r($tree->inorderrec($root));
+
+// Test inorder (iterative)
+echo "Inorder Iterative: ";
+print_r($tree->inorder($root));
+
+// Test preorder (recursive)
+echo "Preorder Recursive: ";
+print_r($tree->preorder($root));
+
+// Test preorder (iterative)
+echo "Preorder Iterative: ";
+print_r($tree->iterpreorder($root));
+
+// Test postorder
+echo "Postorder Recursive: ";
+print_r($tree->postorder($root));
+
+// Test level order (BFS)
+echo "Level Order (BFS): ";
+print_r($tree->levelOrder($root));
+
+// Test maxDepth
+echo "maxDepth: ";
+print_r($tree->maxDepth($root));
+
+// Test maxDepth uisng bfs
+echo "maxDepthBFS: ";
+print_r($tree->bfsMaxDepth($root));
+
