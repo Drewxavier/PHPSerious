@@ -154,7 +154,33 @@ class Treenode{
         return $this->isMirror($root->left, $root->right);
 
     }
+    public function levelorder2($root){
+        if($root === null){
+            return [];
+        }
+        $result = [];
+        $queue = [$root];
+        while (!empty($queue)){
+            $level = [];
+            $levelSize = count($queue);
+            for($i= 0; $i < $levelSize; $i++){
+                $node = array_shift($queue);
+                $level[] = $node->data;
+                if (!empty($node->left)){
+                    $queue[] = $node->left;
+                }
+                if(!empty($node->right)){
+                    $queue[] = $node->right;
+                }
+                $result[] = $level;
 
+            }
+            return $result;
+        }
+
+    }
+    public function lowestcommon($root, $p, $q)
+    #Base case: empty tree or found one of the targets
 
 }
 // Build a sample tree
@@ -226,4 +252,9 @@ $root2->right->right = new Treenode(3);
 echo "\nAsymmetric Tree: ";
 var_export($tree->isSymmetric($root2)); // should print false
 
+echo "\n";
+// Test level order
+echo "level order: ";
+print_r($tree->levelorder2($root));
 
+echo "\n";
