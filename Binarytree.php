@@ -262,6 +262,25 @@ class Treenode{
         }
         return $root;
     }
+    //Binary search tree, All values should be strictly less that the data, and all values from the right greater
+    public function verify($root){
+        if($root === null) return null;
+        $left = $root->left;
+        $right = $root->right;
+        if($left-> data < $root->data && $right->data > $root->data){
+            if($left->left < $left && $left->right > $left){
+                return True;
+            }
+            
+            if($right->left < $right && $right->right > $right){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        return "Verified";
+    }
 }
 // Build a sample tree
 $root = new Treenode(5);
@@ -354,3 +373,8 @@ $lca = $tree->lowestcommon($root, $p, $q);
 echo "Lowest Common Ancestor of {$p->data} and {$q->data} is: {$lca->data}\n";
 // Test maxPathSum
 echo "Max Path Sum: " . $tree->maxPathSum($root) . "\n";
+// Test level order
+echo "Verification of BST: ";
+print_r($tree->verify($root));
+
+echo "\n";
