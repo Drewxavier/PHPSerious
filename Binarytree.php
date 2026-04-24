@@ -30,11 +30,11 @@ class Treenode{
                 $stack[] = $curr; //pushes the current node onto the stack
                 $curr = $curr->left;//moves the traversal deeper into the left child of the current node
             }
-        // Pop from stream_socket_accept
+        // Pop from stack
         $curr = array_pop($stack);
         $result[] = $curr->data; //visit node
 
-        // Move to riht substr_replace
+        // Move to right side 
         $curr = $curr->right;
         }
 
@@ -263,23 +263,44 @@ class Treenode{
         return $root;
     }
     //Binary search tree, All values should be strictly less that the data, and all values from the right greater
-    public function verify($root){
-        if($root === null) return null;
-        $left = $root->left;
-        $right = $root->right;
-        if($left-> data < $root->data && $right->data > $root->data){
-            if($left->left < $left && $left->right > $left){
-                return True;
-            }
-            
-            if($right->left < $right && $right->right > $right){
-                return true;
-            }
-            else{
-                return false;
-            }
+    public function verify($root, $min = null, $max = null){
+        if($root === null){
+            return true;
         }
-        return "Verified";
+        if(($min !== null && $root->data <= $min) || ($max !== null && $root->data >= $max)){
+            return false;
+        } 
+        return $this->verify($root->left, $min, $root->data) && $this->verify($root->right, $root->data, $max);
+    }
+    public function smallest($root, $k){
+        $count = $k;
+        $curr = $root;
+        $stack = [];
+        if($curr === null){
+            return null;
+        }
+
+        while ($curr != null || !empty($stack)){
+            // Go as far left as possible
+            while ($curr !== null){
+                $stack[] = $curr;
+                $curr = $curr->left;
+                
+            }
+        // Pop from stack
+        $curr = array_pop($stack);
+        $count--;; //visit data
+
+        if($count == 0){
+            return $curr->data;
+        }
+
+        // Move to right side 
+        $curr = $curr->right;
+        }
+       
+        
+        return null;
     }
 }
 // Build a sample tree
@@ -373,8 +394,13 @@ $lca = $tree->lowestcommon($root, $p, $q);
 echo "Lowest Common Ancestor of {$p->data} and {$q->data} is: {$lca->data}\n";
 // Test maxPathSum
 echo "Max Path Sum: " . $tree->maxPathSum($root) . "\n";
-// Test level order
-echo "Verification of BST: ";
-print_r($tree->verify($root));
+// Test verification
+$result = $tree->verify($root);
+
+echo "Verification of BST: " . ($result ? "true" : "false") . "\n";
+
+// Test smallest value
+echo "Smallest in value: ";
+print_r($tree->smallest($root, 3));
 
 echo "\n";
