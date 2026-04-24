@@ -179,7 +179,7 @@ class Treenode{
         }
 
     }
-    public function lowestcommon($root, $p, $q){
+    public function lowestcommon($root, $p, $q){//deepest node that has both p and q as descendants
     #Base case: empty tree or found one of the targets
     if($root === null || $root === $p || $root === $q){
         return $root;
@@ -272,8 +272,11 @@ class Treenode{
         } 
         return $this->verify($root->left, $min, $root->data) && $this->verify($root->right, $root->data, $max);
     }
+    public function recSmallest($root, $k) {
+        $sorted = $this->inorderrec($root); // full inorder array
+        return $sorted[$k - 1] ?? null;     // pick k-th element (1-indexed)
+    }
     public function smallest($root, $k){
-        $count = $k;
         $curr = $root;
         $stack = [];
         if($curr === null){
@@ -289,10 +292,10 @@ class Treenode{
             }
         // Pop from stack
         $curr = array_pop($stack);
-        $count--;; //visit data
+        $k--;; //counter that decrements each time you visit a node
 
-        if($count == 0){
-            return $curr->data;
+        if($k == 0){//immediately returns the nodes value
+            return $curr->data; 
         }
 
         // Move to right side 
@@ -302,6 +305,36 @@ class Treenode{
         
         return null;
     }
+    public function lowestcommon2($root, $p, $q){//deepest node that has both p and q as descendants
+    #Base case: empty tree or found one of the targets
+    if($root === null || $root === $p || $root === $q){
+        return $root;
+    }
+    if(($p->data > $root->data) && ($q->data > $root->data)){
+        return $root->right;
+    }
+    elseif(($p->data < $root->data) && ($q->data < $root->data)){
+            return $root->left;
+        }
+    else{
+        return $root;
+    }
+    
+    }
+    public function convert(array $nums){
+        return $this->build($nums, 0, count($nums)-1);
+    }
+    private function build(array $nums, $left, $right){
+        if($left > $right)  return null;
+        $mid = intval(($left + $right)/ 2);
+        $node = new Treenode($nums[$mid]);
+
+        $node->left = $this->build($nums, $left, $mid - 1);
+        $node->right = $this->build($nums, $mid + 1, $right);
+
+        return $node;
+    }
+
 }
 // Build a sample tree
 $root = new Treenode(5);
@@ -404,3 +437,30 @@ echo "Smallest in value: ";
 print_r($tree->smallest($root, 3));
 
 echo "\n";
+// Test smallest value
+echo "Smallest in value using Recursion: ";
+print_r($tree->recSmallest($root, 4));
+
+echo "\n";
+
+$p = $root->left->left;   // node 2
+$q = $root->left->right;  // node 4
+
+$lca = $tree->lowestcommon2($root, $p, $q);
+echo "Lowest Common Ancestor of {$p->data} and {$q->data} is: {$lca->data}\n";
+
+$root = new Treenode(0);
+$root->left = new Treenode(-3);
+$root->right = new Treenode(5);
+$root->left->left = new Treenode(-10);
+$root->right->right = new Treenode(9);
+
+$tree = new Treenode(null); // just to call methods
+
+// Test Balanced BST (recursive)
+$nums = [-10, -3, 0, 5, 9];
+$tree = new Treenode(null);
+$bst = $tree->convert($nums);
+
+echo "A balanced BST: ";
+print_r($bst);
