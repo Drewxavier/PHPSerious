@@ -3,29 +3,44 @@ class bts{
     public $data;
     public $left;
     public $right;
-    public function __construct($data)
+    public function __construct($root)
     {
-        $this->data = $data;
-        $this->left = null;
-        $this->right = null;
+        $this->pushleft($root);
     }
-       
-    public function btsIterator($root){
-        return $root->data;
-    }
-    public function next($root){
-        if($root === null){
-            return null;
+    private function pushleft($node){
+        while ($node !== null){
+            $this->stack[] = $node;
+            $node = $node->left
         }
     }
-}
-function add($num1, $num2){
-        $result = $num1 + $num2;
-        return $result;
+    
+    //return the next smallest element
+    public function next() {
+        $node = array_pop($this->stack);
+        $val = $node->data;
 
+        // If there's a right child, push its left path
+        if ($node->right !== null) {
+            $this->pushLeft($node->right);
+        }
+
+        return $val;
     }
+    // Check if there are more elements
+    public function hasNext() {
+        return !empty($this->stack);
+    }
+}
+$root = new bts(5);
+$root->left = new bts(3);
+$root->right = new bts(7);
+$root->left->left = new bts(2);
+$root->left->right = new bts(4);
+$root->right->left = new bts(6);
+$root->right->right = new bts(8);
 
-$num1 = 4;
-$num2 = 10;
-$result = add($num1, $num2);
-echo "The sum of " . $num1 . " And ". $num2 . "  is: ".$result.  "\n";
+$tree = new bts(null);
+
+// Test inorder (recursive)
+echo "Test: ";
+print_r($tree->next($root));
