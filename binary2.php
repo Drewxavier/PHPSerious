@@ -1,89 +1,52 @@
-<?php 
-class bts{
+<?php
+class Treenode{
     public $data;
-    public $left;
     public $right;
-    private $stack = [];
-    public function __construct($root)
+    public $left;
+
+    public function __construct($data)
     {
-        $this->pushleft($root);
-    }
-    private function pushleft($node){
-        while ($node !== null){
-            $this->stack[] = $node;
-            $node = $node->left;
-        }
-    }
-    
-    //return the next smallest element
-    public function next() {
-        $node = array_pop($this->stack);
-        $val = $node->data;
-
-        // If there's a right child, push its left path
-        if ($node->right !== null) {
-            $this->pushLeft($node->right);
-        }
-
-        return $val;
-    }
-    // Check if there are more elements
-    public function hasNext() {
-        return !empty($this->stack);
-    }
-}
-class TreeNode {
-    public $data;
-    public $left;
-    public $right;
-
-    public function __construct($data) {
         $this->data = $data;
-        $this->left = null;
         $this->right = null;
+        $this->left = null;
+    }
+    public function inorderrec($root){
+        if ($root === null){
+            return []; }
+        return array_merge(
+            $this->inorderrec($root->left), [$root->data], $this->inorderrec($root->right)
+        );
+    }
+    public function invert($root){
+        if($root === null){
+            return null;
+        }
+        // Swap children
+        $temp = $root->left;
+        $root->left = $root->right;
+        $root->right = $temp;
+
+        //Recurse down on both sides
+        $this->invert($root->left);
+        $this->invert($root->right);
+
+        return $root; 
     }
 }
+$root = new Treenode(5);
+$root->left = new Treenode(3);
+$root->right = new Treenode(7);
+$root->left->left = new Treenode(2);
+$root->left->right = new Treenode(4);
+$root->right->left = new Treenode(6);
+$root->right->right = new Treenode(8);
 
-function bstFromPreorder($preorder) {
-    $index = 0;
-    return buildBST($preorder, $index, PHP_INT_MIN, PHP_INT_MAX);
-}
+$tree = new Treenode(null); // just to call methods
 
-function buildBST(&$preorder, &$index, $lower, $upper) {
-    if ($index >= count($preorder)) return null;
+// Test inorder (recursive)
+echo "Inorder Recursive: ";
+print_r($tree->inorderrec($root));
 
-    $val = $preorder[$index];
-    if ($val < $lower || $val > $upper) return null;
-
-    $index++;
-    $node = new TreeNode($val);
-    $node->left = buildBST($preorder, $index, $lower, $val);
-    $node->right = buildBST($preorder, $index, $val, $upper);
-
-    return $node;
-}
-
-// Example
-$preorder = [8, 5, 1, 7, 10, 12];
-$root = bstFromPreorder($preorder);
-
-print_r($root);
-echo "\n";
-
-// Build a sample tree
-$root = new TreeNode(5);
-$root->left = new TreeNode(3);
-$root->right = new TreeNode(7);
-$root->left->left = new TreeNode(2);
-$root->left->right = new TreeNode(4);
-$root->right->left = new TreeNode(6);
-$root->right->right = new TreeNode(8);
-
-// Create iterator
-$iterator = new bts($root);
-
-// Traverse inorder
-echo "Inorder traversal: ";
-while ($iterator->hasNext()) {
-    echo $iterator->next() . " ";
-}
+// Test invertion
+echo "Inversion Recursive: ";
+print_r($tree->invert($root));

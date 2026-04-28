@@ -15,7 +15,7 @@ class Treenode{
         if ($root === null){
             return []; }
         return array_merge(
-            $this->inorderrec($root->left), [$root->data], $this->inorder($root->right)
+            $this->inorderrec($root->left), [$root->data], $this->inorderrec($root->right)
         );
     }
 
