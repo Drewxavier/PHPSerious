@@ -100,6 +100,37 @@ class Treenode {
         }
         return $height;
     }
+    public function flatten($root) {
+        if ($root === null) return;
+
+        // Flatten left and right subtrees
+        $this->flatten($root->left);
+        $this->flatten($root->right);
+
+        // If left subtree exists, insert it between root and right
+        if ($root->left !== null) {
+            $tempRight = $root->right;
+            $root->right = $root->left;
+            $root->left = null;
+
+            // Find the tail of the new right subtree
+            $tail = $root->right;
+            while ($tail->right !== null) {
+                $tail = $tail->right;
+            }
+
+            // Attach the original right subtree
+            $tail->right = $tempRight;
+        }
+    }
+    public function printList($root) {
+        $result = [];
+        while ($root !== null) {
+            $result[] = $root->data;
+            $root = $root->right;
+        }
+        return $result;
+    }
 
 
 }
@@ -126,6 +157,7 @@ print_r($tree->inorderrec($inverted));
 
 echo "\n";
 
+
 // Test verify (same tree)
 $a = new Treenode(1);
 $a->left = new Treenode(2);
@@ -146,3 +178,9 @@ echo "Height of right subtree: " . $tree->getHeight($root->right) . "\n";
 
 // Test countNodes
 echo "Total number of nodes: " . $tree->countNodes($root) . "\n";
+
+echo "\n";
+$tree->flatten($root);
+
+echo "Flattened tree (preorder): ";
+print_r($tree->printList($root));
