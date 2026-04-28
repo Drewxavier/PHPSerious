@@ -58,11 +58,50 @@ class Treenode {
         return $this->pathSum($root->left, $remaining) ||
                $this->pathSum($root->right, $remaining);
     }
-    public function viewright($root){
-        if($root === null) return null;
+    public function viewRight($root) {
+    if ($root === null) return [];
 
-        return $this->viewright($root->right);
+    $queue = [$root];
+    $result = [];
+
+    while (!empty($queue)) {
+        $levelSize = count($queue);
+
+        for ($i = 0; $i < $levelSize; $i++) {
+            $node = array_shift($queue);
+
+            // If it's the last node in this level, add to result
+            if ($i == $levelSize - 1) {
+                $result[] = $node->data;
+            }
+
+            if ($node->left !== null) $queue[] = $node->left;
+            if ($node->right !== null) $queue[] = $node->right;
+        }
     }
+
+    return $result;
+    }
+    public function countNodes($root) {
+        if ($root === null) return 0;
+        $leftHeight = $this->getHeight($root->left);
+        $rightHeight = $this->getHeight($root->right);
+        if ($leftHeight === $rightHeight) {
+            return (1 << $leftHeight) + $this->countNodes($root->right);
+        } else {
+            return (1 << $rightHeight) + $this->countNodes($root->left);
+        }
+    }
+     public function getHeight($node) {
+        $height = 0;
+        while ($node !== null) {
+            $height++;
+            $node = $node->left;
+        }
+        return $height;
+    }
+
+
 }
 
 // Build a sample tree
@@ -98,4 +137,12 @@ $b->right = new Treenode(3);
 
 echo Treenode::verify($a, $b) ? "Trees are identical" : "Trees are not identical";
 echo $tree->pathSum($root, 22) ? "Path exists\n" : "No path\n";
-echo "Right side value of trees ". $tree->viewright($root);
+$rightView = $tree->viewRight($root); 
+echo "Right side view of tree: " . implode(", ", $rightView);
+
+echo "\n";
+echo "Height of left subtree: " . $tree->getHeight($root->left) . "\n";
+echo "Height of right subtree: " . $tree->getHeight($root->right) . "\n";
+
+// Test countNodes
+echo "Total number of nodes: " . $tree->countNodes($root) . "\n";
