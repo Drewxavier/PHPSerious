@@ -3,6 +3,8 @@ class Treenode {
     public $data;
     public $right;
     public $left;
+
+    
     private $maxDiameter;
 
     public function __construct($data) {
@@ -43,9 +45,9 @@ class Treenode {
         if ($root1 === null && $root2 === null) return true;
         if ($root1 === null || $root2 === null) return false;
 
-        return ($root1->data === $root2->data) &&
-               self::verify($root1->left, $root2->left) &&
-               self::verify($root1->right, $root2->right);
+        return ($root1->data === $root2->data) &&// if both nodes exist, check if their values are equal
+               self::verify($root1->left, $root2->left) && //recursively check if the left children of both nodes are identical
+               self::verify($root1->right, $root2->right);//recursively check if the right children of both nodes are identical
     }
     public function pathSum($root, $target) {
         if ($root === null) return false;
@@ -154,6 +156,20 @@ class Treenode {
         return 1 + max($leftDepth, $rightDepth); //The depth of the current node is 1 (itself) plus the larger of its two children’s depths.
 //This value is passed back up to the parent node so the parent can compute its own diameter.
     }
+    public static function mergeTrees(?Treenode $t1, ?Treenode $t2): ?Treenode {//?Treenode means the parameter can either be: treenode object or null
+        // If one of them is null, return the other
+        if ($t1 === null) return $t2;
+        if ($t2 === null) return $t1;
+
+        // Add overlapping node values
+        $t1->data += $t2->data;
+
+        // Recurse on children
+        $t1->left = self::mergeTrees($t1->left, $t2->left);
+        $t1->right = self::mergeTrees($t1->right, $t2->right);
+
+        return $t1;
+    }
 
 
 }
@@ -212,3 +228,31 @@ echo "\n";
 //Provide diameter of the treenode
 echo "Tree diameter = ";
 echo $root->diameter($root); 
+echo "\n";
+// Tree 1
+$t1 = new Treenode(1);
+$t1->left = new Treenode(3);
+$t1->right = new Treenode(2);
+$t1->left->left = new Treenode(5);
+
+// Tree 2
+$t2 = new Treenode(2);
+$t2->left = new Treenode(1);
+$t2->right = new Treenode(3);
+$t2->left->right = new Treenode(4);
+$t2->right->right = new Treenode(7);
+
+// Merge
+$merged = Treenode::mergeTrees($t1, $t2);
+
+// Simple print to check
+function printTree($root) {
+    if ($root === null) return;
+    echo $root->data . " ";
+    printTree($root->left);
+    printTree($root->right);
+}
+
+printTree($merged); 
+// Output: 3 4 5 4 5 7
+
