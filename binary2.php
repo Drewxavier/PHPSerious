@@ -36,6 +36,7 @@ class Treenode {
         return $root;
     }
 
+
     // Verify if two trees are identical
     public static function verify($root1, $root2) {
         if ($root1 === null && $root2 === null) return true;
@@ -58,6 +59,7 @@ class Treenode {
         return $this->pathSum($root->left, $remaining) ||
                $this->pathSum($root->right, $remaining);
     }
+        //fuckass Medium questions
     public function viewRight($root) {
     if ($root === null) return [];
 
