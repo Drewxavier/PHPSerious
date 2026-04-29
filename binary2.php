@@ -136,21 +136,23 @@ class Treenode {
     }
      // Function to calculate diameter
     public function diameter($root) {
-        $this->maxDiameter = 0;
-        $this->depth($root);
-        return $this->maxDiameter;
+        $this->maxDiameter = 0; //ensures that every time you call diameter(), you start fresh
+        $this->depth($root); //calls the helper function
+        return $this->maxDiameter; //returns the largest diameter discovered during traversal i
     }
     // Helper function to calculate depth
     private function depth($node) {
-        if ($node === null) return 0;
+        if ($node === null) return 0;//if depth is zeor, stop recursion
 
         $leftDepth = $this->depth($node->left);
-        $rightDepth = $this->depth($node->right);
+        $rightDepth = $this->depth($node->right);//recursively calculate the depth of the left and right subtrees
 
         // Update diameter at this node
         $this->maxDiameter = max($this->maxDiameter, $leftDepth + $rightDepth);
+        //The above, at every node, the longest path through that node is leftDepth + rightDepth
 
-        return 1 + max($leftDepth, $rightDepth);
+        return 1 + max($leftDepth, $rightDepth); //The depth of the current node is 1 (itself) plus the larger of its two children’s depths.
+//This value is passed back up to the parent node so the parent can compute its own diameter.
     }
 
 
