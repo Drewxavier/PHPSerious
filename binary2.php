@@ -3,6 +3,7 @@ class Treenode {
     public $data;
     public $right;
     public $left;
+    private $maxDiameter;
 
     public function __construct($data) {
         $this->data = $data;
@@ -133,6 +134,24 @@ class Treenode {
         }
         return $result;
     }
+     // Function to calculate diameter
+    public function diameter($root) {
+        $this->maxDiameter = 0;
+        $this->depth($root);
+        return $this->maxDiameter;
+    }
+    // Helper function to calculate depth
+    private function depth($node) {
+        if ($node === null) return 0;
+
+        $leftDepth = $this->depth($node->left);
+        $rightDepth = $this->depth($node->right);
+
+        // Update diameter at this node
+        $this->maxDiameter = max($this->maxDiameter, $leftDepth + $rightDepth);
+
+        return 1 + max($leftDepth, $rightDepth);
+    }
 
 
 }
@@ -186,3 +205,8 @@ $tree->flatten($root);
 
 echo "Flattened tree (preorder): ";
 print_r($tree->printList($root));
+echo "\n";
+
+//Provide diameter of the treenode
+echo "Tree diameter = ";
+echo $root->diameter($root); 
