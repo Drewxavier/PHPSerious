@@ -170,6 +170,18 @@ class Treenode {
 
         return $t1;
     }
+    public static function rangeSum($root, $low, $high){
+        if ($root === null) return null;
+
+        if($root->data < $low){
+            return self::rangeSum($root->right, $low, $high);
+        }
+        if($root->data > $high){
+            return self::rangeSum($root->left, $low, $high);
+
+        }
+        return $root->data + self::rangeSum($root->left, $low, $high) + self::rangeSum($root->right, $low, $high);
+    }
 
 
 }
@@ -255,4 +267,17 @@ function printTree($root) {
 
 printTree($merged); 
 // Output: 3 4 5 4 5 7
+echo "\n";
+
+// Build BST
+$root = new Treenode(10);
+$root->left = new Treenode(5);
+$root->right = new Treenode(15);
+$root->left->left = new Treenode(3);
+$root->left->right = new Treenode(7);
+$root->right->right = new Treenode(18);
+
+// Range sum [7, 15]
+echo "Tree root range sum: ";
+echo Treenode::rangeSum($root, 7, 15); // Output: 32
 
