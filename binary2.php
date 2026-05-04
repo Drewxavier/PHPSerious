@@ -182,6 +182,34 @@ class Treenode {
         }
         return $root->data + self::rangeSum($root->left, $low, $high) + self::rangeSum($root->right, $low, $high);
     }
+    public function delete($root, $target) {
+    if ($root === null) return null;
+
+    if ($target < $root->data) {
+        $root->left = $this->delete($root->left, $target);
+    } elseif ($target > $root->data) {
+        $root->right = $this->delete($root->right, $target);
+    } else {
+        // Node found
+        if ($root->left === null) return $root->right;
+        if ($root->right === null) return $root->left;
+
+        // Two children: find inorder successor
+        //used to borrow the next valid value(successor,)overwrite the current
+        //node, and then delete the borrowed node(guaranteed to have at most one child, making deletion easy)
+        $minNode = $this->findMin($root->right);//find the smallest node in the right subtree
+        $root->data = $minNode->data;//copy it's value into the node we are deleting
+        $root->right = $this->delete($root->right, $minNode->data);//Delete that successor node from the  right subtree
+    }
+    return $root;
+}
+
+private function findMin($node) {
+    while ($node->left !== null) {
+        $node = $node->left;
+    }
+    return $node;
+}
 
 
 }
@@ -278,6 +306,15 @@ $root->left->right = new Treenode(7);
 $root->right->right = new Treenode(18);
 
 // Range sum [7, 15]
-echo "Tree root range sum: ";
+echo "Tree root range sum: ";  
 echo Treenode::rangeSum($root, 7, 15); // Output: 32
+echo "\n";
+
+echo "Before deletion: ";
+print_r($tree->inorderrec($root));
+
+$root = $tree->delete($root, 15);
+
+echo "\nAfter deleting 15: ";
+print_r($tree->inorderrec($root));
 
