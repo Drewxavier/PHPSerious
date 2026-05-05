@@ -440,3 +440,28 @@ $tree->recoverTree($root);
 
 echo "\nAfter recovery (inorder): ";
 print_r($tree->inorderrec($root));
+echo "\n";
+
+// Build sample tree
+$root = new Treenode(3);
+$root->left = new Treenode(5);
+$root->right = new Treenode(1);
+$root->left->left = new Treenode(6);
+$root->left->right = new Treenode(2);
+$root->right->left = new Treenode(0);
+$root->right->right = new Treenode(8);
+$root->left->right->left = new Treenode(7);
+$root->left->right->right = new Treenode(4);
+
+$tree = new Treenode(null); // just to call methods
+
+// Pick target and K
+$target = $root->left; // node with value 5
+$K = 2;
+
+// Run distanceK
+$result = $tree->distanceK($root, $target, $K);
+
+echo "Nodes at distance $K from target {$target->data}: ";
+print_r($result);
+
