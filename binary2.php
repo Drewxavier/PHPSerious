@@ -236,6 +236,42 @@ public function connect($root){
     }
     return $root;
 }
+    public function recoverTree($root) {
+    $this->first = null;
+    $this->second = null;
+    $this->prev = null;
+
+    $this->inorderRecover($root);
+
+    // Swap values of the two misplaced nodes
+    if ($this->first !== null && $this->second !== null) {
+        $temp = $this->first->data;
+        $this->first->data = $this->second->data;
+        $this->second->data = $temp;
+    }
+}
+
+private $first = null;
+private $second = null;
+private $prev = null;
+
+private function inorderRecover($node) {
+    if ($node === null) return;
+
+    // 1. Traverse left subtree
+    $this->inorderRecover($node->left);
+    //check for violation
+    if ($this->prev !== null && $this->prev->data > $node->data) {
+        if ($this->first === null) {
+            $this->first = $this->prev; // first wrong node
+        }
+        $this->second = $node; // second wrong node
+    }
+    $this->prev = $node; // update previous pointer
+    //traverse right subtree
+    $this->inorderRecover($node->right);
+}
+
 
 
 }
@@ -352,4 +388,16 @@ echo "Next of node 5->left (3) is: ";
 echo isset($root->left->next) ? $root->left->next->data : "null";
 echo "\n";
 
+// Deliberately swap two nodes to simulate the error
+$temp = $root->left->data;   // swap 5’s left child (3) with root (10)
+$root->left->data = $root->data;
+$root->data = $temp;
 
+echo "Before recovery (inorder): ";
+print_r($tree->inorderrec($root));
+
+// Run recovery
+$tree->recoverTree($root);
+
+echo "\nAfter recovery (inorder): ";
+print_r($tree->inorderrec($root));
