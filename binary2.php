@@ -271,6 +271,45 @@ private function inorderRecover($node) {
     //traverse right subtree
     $this->inorderRecover($node->right);
 }
+    public function distanceK($root, $target, $K) {
+    // Step 1: Build parent map
+    $parent = [];
+    $this->buildParentMap($root, null, $parent);
+
+    // Step 2: BFS from target
+    $queue = [[$target, 0]];
+    $visited = [$target->data => true];
+    $result = [];
+
+    while (!empty($queue)) {
+        [$node, $dist] = array_shift($queue);
+
+        if ($dist == $K) {
+            $result[] = $node->data;
+        }
+
+        if ($dist < $K) {
+            foreach ([$node->left, $node->right, $parent[$node->data] ?? null] as $nbr) {
+                if ($nbr !== null && !isset($visited[$nbr->data])) {
+                    $visited[$nbr->data] = true;
+                    $queue[] = [$nbr, $dist + 1];
+                }
+            }
+        }
+    }
+
+    return $result;
+}
+
+private function buildParentMap($node, $par, &$parent) {
+    if ($node === null) return;
+    if ($par !== null) {
+        $parent[$node->data] = $par;
+    }
+    $this->buildParentMap($node->left, $node, $parent);
+    $this->buildParentMap($node->right, $node, $parent);
+}
+
 
 
 
