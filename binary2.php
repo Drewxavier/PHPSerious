@@ -3,6 +3,7 @@ class Treenode {
     public $data;
     public $right;
     public $left;
+    public $next;
 
     
     private $maxDiameter;
@@ -11,6 +12,7 @@ class Treenode {
         $this->data = $data;
         $this->right = null;
         $this->left = null;
+        $this->next = null;
     }
 
     // Inorder traversal (recursive)
@@ -210,6 +212,30 @@ private function findMin($node) {
     }
     return $node;
 }
+public function connect($root){
+    if($root === null) return null;
+    $queue = [$root];
+
+    while (!empty($queue)) {
+        $size = count($queue);
+        $prev = null;
+
+        for ($i= 0; $i < $size; $i++){
+            $node = array_shift($queue);
+            if($prev !== null){
+                $prev->next = $node;
+            }
+            $prev = $node;
+
+            if($node->left !== null) $queue[] = $node->left;
+            if($node->right !== null) $queue[] = $node->right;
+        }
+
+        // Last node in the level points to null
+        $prev->next = null;
+    }
+    return $root;
+}
 
 
 }
@@ -317,4 +343,13 @@ $root = $tree->delete($root, 15);
 
 echo "\nAfter deleting 15: ";
 print_r($tree->inorderrec($root));
+
+echo "Connecting next pointers...\n";
+$root = $tree->connect($root);
+
+// Quick check: print the next pointer of root->left (node 5’s left child)
+echo "Next of node 5->left (3) is: ";
+echo isset($root->left->next) ? $root->left->next->data : "null";
+echo "\n";
+
 
